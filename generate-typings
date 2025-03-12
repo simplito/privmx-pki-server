@@ -1,0 +1,74 @@
+#!/bin/bash
+
+set -e
+
+MAIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+if [ -n "$1" ]; then
+    VERSION=$1
+else
+    VERSION=1.0.$(date '+%Y%m%d%H%M')
+fi
+
+WORK_DIR=`mktemp -d`
+
+mkdir -p $WORK_DIR/src/api/client/types
+mkdir -p $WORK_DIR/src/api/mgm/types &&
+cp -R $MAIN_DIR/src/types $WORK_DIR/src/types
+cp -R $MAIN_DIR/src/api/client/auth/AuthApiTypes.ts $WORK_DIR/src/api/client/types/Auth.d.ts
+cp -R $MAIN_DIR/src/api/client/user/UserApiTypes.ts $WORK_DIR/src/api/client/types/User.d.ts
+cp -R $MAIN_DIR/src/api/client/instance/InstanceApiTypes.ts $WORK_DIR/src/api/client/types/Instance.d.ts
+cp -R $MAIN_DIR/src/api/client/misc/MiscApiTypes.ts $WORK_DIR/src/api/client/types/Misc.d.ts
+cp -R $MAIN_DIR/src/api/client/organization/OrganizationApiTypes.ts $WORK_DIR/src/api/client/types/Organization.d.ts
+
+cp -R $MAIN_DIR/src/api/mgm/user/ManagementUserApiTypes.ts $WORK_DIR/src/api/mgm/types/User.d.ts
+cp -R $MAIN_DIR/src/api/mgm/instance/ManagementInstanceApiTypes.ts $WORK_DIR/src/api/mgm/types/Instance.d.ts
+cp -R $MAIN_DIR/src/api/mgm/license/LicenseApiTypes.ts $WORK_DIR/src/api/mgm/types/License.d.ts
+cp -R $MAIN_DIR/src/api/mgm/mail/MailApiTypes.ts $WORK_DIR/src/api/mgm/types/Mail.d.ts
+cp -R $MAIN_DIR/src/api/mgm/management/ManagementApiTypes.ts $WORK_DIR/src/api/mgm/types/Management.ts
+cp -R $MAIN_DIR/src/api/mgm/organization/ManagementOrganizationApiTypes.ts $WORK_DIR/src/api/mgm/types/Organization.d.ts
+
+tee $WORK_DIR/src/api/client/types/index.d.ts > /dev/null << END
+export * as auth from "./Auth";
+export * as instance from "./Instance";
+export * as misc from "./Misc";
+export * as organization from "./Organization";
+export * as developer from "./Developer";
+END
+
+tee $WORK_DIR/src/api/mgm/types/index.d.ts > /dev/null << END
+export * as mail from "./Mail";
+export * as instance from "./Instance";
+export * as license from "./License";
+export * as organization from "./Organization";
+export * as developer from "./Developer";
+export * as management from "./Management";
+END
+
+tee $WORK_DIR/src/api/index.d.ts > /dev/null << END
+export * as client from "./client/types";
+export * as management from "./mgm/types";
+END
+
+tee $WORK_DIR/typings.d.ts > /dev/null << END
+export * as types from "./src/types";
+export * as api from "./src/api/";
+END
+
+tee $WORK_DIR/package.json > /dev/null << END
+{
+    "name": "@types/jsronrcp-webapp-template-api",
+    "version": "$VERSION",
+    "description": "API types for Webapp Template",
+    "license": "PrivMX",
+    "typings": "./typings.d.ts"
+}
+END
+
+cd $WORK_DIR
+echo $WORK_DIR
+npm publish --registry=https://npmregistry.privmx.com/ &&
+cd / &&
+rm -rf $WORK_DIR &&
+
+node -e 'var path = "'$MAIN_DIR'/package.json"; var fs = require("fs"); let content = JSON.parse(fs.readFileSync(path, "utf8")); content.typingsVersion = "'$VERSION'"; fs.writeFileSync(path, JSON.stringify(content, null, 2) + "\n", "utf8");';

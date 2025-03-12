@@ -1,0 +1,19 @@
+* {
+    box-sizing: border-box;
+}
+html, body {
+    padding: 0;
+    margin: 0;
+}
+body {
+    font-family: "Segoe UI", sans-serif;
+    font-size: 14px;
+    line-height: 1.42857143;
+    color: #222;
+    margin: 20px;
+}
+#main {
+    width: 1000px;
+    margin: auto;
+    text-align: left;
+}

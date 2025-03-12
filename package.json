@@ -1,0 +1,63 @@
+{
+  "name": "webapp-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon out/index.js",
+    "build": "rm -rf out && tsc",
+    "watch": "rm -rf out && tsc -w",
+    "lint": "eslint -c eslint.config.mjs ./src",
+    "test": "q2-test",
+    "compile": "npm run build && npm run gen-docs && npm run lint && npm run detect-unused && npm run test",
+    "gen-docs": "node ./out/docs/scripts/gen_docs.js",
+    "gen-json-docs": "node ./out/docs/scripts/gen_json_docs.js",
+    "gen-slate-from-json": "node ./out/docs/scripts/gen_slate_from_json.js",
+    "e2e-tests": "node ./out/test/e2e/run.js",
+    "detect-unused": "node ./out/scripts/detect-unused.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^2.12.0",
+    "@stylistic/eslint-plugin-js": "^2.12.0",
+    "@types/authenticator": "^1.1.4",
+    "@types/bn.js": "^5.1.6",
+    "@types/mime": "^3.0.4",
+    "@types/node": "^22.10.1",
+    "@types/nodemailer": "^6.4.17",
+    "@types/privmx-bridge-multiinstance-plugin-api": "^1.0.202501091708",
+    "@types/qs": "^6.9.17",
+    "@types/thirty-two": "^1.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "eslint": "^9.16.0",
+    "eslint-plugin-indent-empty-lines": "^1.0.2",
+    "nodemon": "^3.1.7",
+    "q2-test": "^1.1.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@godaddy/terminus": "^4.12.1",
+    "@types/ws": "^8.5.13",
+    "adv-ioc": "^1.0.6",
+    "adv-promise": "^1.0.1",
+    "adv-template": "^1.0.3",
+    "adv-validator": "^1.0.3",
+    "authenticator": "^1.1.5",
+    "bn.js": "^5.2.1",
+    "bs58check": "^3.0.1",
+    "eslint-plugin-indent-empty-lines": "^1.0.2",
+    "mime": "^3.0.0",
+    "mongodb": "^6.11.0",
+    "nodemailer": "^6.9.16",
+    "privmx-srp": "^1.0.0",
+    "qs": "^6.13.1",
+    "thirty-two": "^1.0.2",
+    "ws": "^8.18.0"
+  },
+  "typingsVersion": "1.0.202501200943"
+}

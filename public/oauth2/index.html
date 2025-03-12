@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>OAuth Authenticate</title>
+  <link rel="stylesheet" href="../assets/bootstrap.min.css">
+  <script src="../assets/jquery-3.7.1.slim.min.js"></script>
+  <script src="../assets/bootstrap.min.js"></script>
+  <style>
+     body {
+      background-color: #202020;
+      color: white;
+    }
+    .page {
+      display: none;
+    }
+    .page.active {
+      display: block;
+    }
+    #authorization-page-container {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+    .form-control {
+      width: 25em;
+    }
+    #login-form {
+      margin: auto;
+    }
+    #confirm-button {
+      width: 25em;
+    }
+    #logo {
+      margin: auto;
+      width: 25em;
+      height: 15em;
+    }
+    .modal-body {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-content {
+      background-color: #282828;
+    }
+    .modal-header {
+      text-align: center;
+    }
+    .modal-dialog {
+      width: 27em;
+      margin: 20vh auto 0px auto
+    }
+    .modal-header {
+      border-bottom: 0 none;
+    }
+    .modal-footer {
+      border-top: 0 none;
+    }
+    #modal-inner-container {
+      text-align: left;
+    }
+    .alert {
+      text-align: left;
+      width: 25em;
+      margin:auto;
+      margin-top: 2em;
+      visibility: hidden;
+    }
+    .alert-info {
+      width: auto;
+    }
+  </style>
+</head>
+  <div id="info-alert" class="alert alert-info d-flex align-items-center" role="alert"></div>
+  <body class="container">
+    <div id="authorization-page" class="page">
+      <div id="authorization-page-container">
+        <img id="logo" src="../assets/privmxlogo.svg">
+        <form id="login-form" onsubmit="return false;">
+          <div class="form-group">
+            <input class='form-control' type="text" id="email" name="email" placeholder="Email" value=""required>
+          </div>
+          <div class="form-group">
+            <input class='form-control' type="password" id="password" name="password" placeholder="Password" value="" required>
+          </div>
+          <button id="confirm-button" class='btn btn-success' onclick="login(document.getElementById('email').value, document.getElementById('password').value);">Login</button>
+          <div id="error-alert" class="alert alert-danger d-flex align-items-center" role="alert"></div>
+        </form>
+      </div>
+    </div>
+    <div id="confirmation-page" class="page">
+      <h1>Website will have access to your corresponding resources:</h1>
+      <ul id="scopeList"></ul>
+      <form id="login-form" onsubmit="return false;">
+        <button class='btn btn-success' onclick="authorize()">Accept Scope</button>
+      </form>
+    </div>
+  </div>
+  </div>
+  <script>
+    async function listScope() {
+      const scopes = new URLSearchParams(window.location.search).get("scope").split(" ");
+      scopes.forEach(scope => {
+        const node = document.createElement("li");
+        const textnode = document.createTextNode(scope);
+        node.appendChild(textnode);
+        document.getElementById("scopeList").appendChild(node);
+      });
+    }
+    async function login(email, password) {
+      if (!email || !password) {
+        return;
+      }
+      try {
+        const response = await fetch("/main", {
+          method: "POST",
+          body: JSON.stringify({
+            "jsonrpc": "2.0",
+            "id": 128,
+            "method": "auth/login",
+            "params": {
+              "email": email,
+              "password": password,
+            }
+          }),
+          headers: {
+            "Content-type": "application/json"
+          }
+        });
+        data = await response.json();
+        if (data.error) {
+          const errorMessage = data.error.message;
+          const errorAdditionalData = data.error.data;
+          throw new Error(`${errorMessage} ${(errorAdditionalData) ? `</br>Additional info: ${errorAdditionalData}` : ""}`)
+        }
+        if (data.result.secondFactorRequired) {
+          $("#secondFactorModalCenter").modal() 
+        }
+        else {
+          switchToConfirmationPage();
+        }
+      }
+      catch (e) {
+        console.log("Error during login", e, e.cause);
+        showErrorAlert(e)
+      }
+    }
+
+    function switchToAuthorizationPage() {
+      document.getElementById("authorization-page").classList.add("active");
+      document.getElementById("confirmation-page").classList.remove("active");
+    }
+
+    function switchToConfirmationPage() {
+      document.getElementById("authorization-page").classList.remove("active");
+      document.getElementById("confirmation-page").classList.add("active");
+    }
+
+    function showErrorAlert(e) {
+      const alertObject = document.getElementById("error-alert");
+      alertObject.innerHTML = e;
+      alertObject.style.visibility = "visible";
+    }
+
+    function displayLoginDestinationInfo() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect_uri = urlParams.get("redirect_uri");
+      const redirectUriObject = new URL(redirect_uri)
+      if (!redirect_uri) {
+        return;
+      }
+      const alertObject = document.getElementById("info-alert");
+      alertObject.innerHTML = `You log on to ${redirectUriObject.host}`;
+      alertObject.style.visibility = "visible";
+    }
+
+    function authorize() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const query = new URLSearchParams({
+        "client_id": urlParams.get("client_id"),
+        "redirect_uri": urlParams.get("redirect_uri"),
+        "response_type": urlParams.get("response_type"),
+        "grant_type": urlParams.get("grant_type"),
+        "state": urlParams.get("state"),
+        "scope": urlParams.get("scope"),
+      }).toString();
+      window.location = "/oauth2/authorize?" + query;
+    }
+    async function checkAuthorization() {
+      try {
+        const res = await fetch("/main", {
+          method: "POST",
+          body: JSON.stringify({
+            "jsonrpc": "2.0",
+            "id": 128,
+            "method": "user/checkAuthorization",
+            "params": {}
+          }),
+          headers: {
+            "Content-type": "application/json"
+          }
+        });
+        const data = await res.json();
+        if (data.result == "OK") {
+          switchToConfirmationPage();
+        }
+        else if (data.error && data.error.code == 0x000E) {
+          switchToAuthorizationPage();
+        }
+        else {
+          throw new Error("Unsupported json response", {cause: {jsonRpcResponse: data}});
+        }
+      }
+      catch (e) {
+        console.log("Error during checking authorization", e, e.cause);
+        alert("Unknown error");
+      }
+    }
+
+    async function confirmSecondFactorAuthentication(code, rememberDeviceId) {
+      try {
+        const res = await fetch("/main", {
+          method: "POST",
+          body: JSON.stringify({
+            "jsonrpc": "2.0",
+            "id": 128,
+            "method": "auth/confirmSecondFactorAuthentication",
+            "params": {
+              "code": code,
+              "rememberDevice": rememberDeviceId
+            }
+          }),
+          headers: {
+            "Content-type": "application/json"
+          }
+        });
+        const data = await res.json();
+        if (data.result == "OK") {
+          switchToConfirmationPage();
+        }
+        else if (data.error && data.error.code == 0x000E) {
+          switchToAuthorizationPage();
+        }
+        else {
+          throw new Error("Unsupported json response", {cause: {jsonRpcResponse: data}});
+        }
+      }
+      catch (e) {
+        console.log("Error during checking authorization", e, e.cause);
+        alert("Unknown error");
+      }
+    }
+
+    listScope();
+    checkAuthorization();
+    displayLoginDestinationInfo();
+  </script>
+
+  <!-- Modal -->
+  <div class="modal fade" id="secondFactorModalCenter" tabindex="-1" role="dialog" aria-labelledby="secondFactorModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="secondFactorModalLongTitle">2FA Authorization required</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="modal-inner-container">
+            <input class='form-control' type="text" id="secondFactorCode" name="email" placeholder="2FACode" value=""required>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="rememberDeviceCheckbox">
+              <label class="form-check-label" for="flexCheckDefault">
+                Remember device
+              </label>
+            </div>
+          </div>
+        </div>  
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary btn btn-success" data-dismiss="modal" onclick="confirmSecondFactorAuthentication(document.getElementById('secondFactorCode').value, document.getElementById('rememberDeviceCheckbox').checked)">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

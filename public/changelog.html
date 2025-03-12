@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Changelog - Webapp Template Server</title>
+    <link rel="stylesheet" href="assets/style.css?v=1" />
+</head>
+<body>
+    <div id="main">
+        <h1>Webapp Template Server - Changelog</h1>
+        
+        <h2>Version 1.11.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>
+                Added SRP Login
+                <ul>
+                    <li>Added method to AuthApi: resetSrpCredentials</li>
+                    <li>Added method to AuthApi: srpRegister</li>
+                    <li>Added method to AuthApi: getSrpInfo</li>
+                    <li>Added method to AuthApi: startSrpLogin</li>
+                    <li>Added method to AuthApi: confirmSrpLogin</li>
+                    <li>Added method to UserApi: startSrpCredentialsChange</li>
+                    <li>Added method to UserApi: confirmSrpCredentialsChange</li>
+                </ul>
+            </li>
+            <li>Added TTL to tokens</li>
+            <li>Added login log
+                <ul>
+                    <li>Added method to ManagementApi: listLoginLog</li>
+                </ul>
+            </li>
+            <li>Added filters and sortby to ContextApi/listContextsOfOrganization</li>
+            <li>Added Oauth2 SSO
+                <ul>
+                    <li>Added /oauth2/authorize and /oauth2/token methods compatible with RFC 6749 authorization_code and refresh_token grant types and RFC 6750</li>
+                    <li>Added login form page at /oauth2/</li>
+                    <li>Added method to ManagementApi: addOauth2Client</li>
+                    <li>Added method to ManagementApi: deleteOauth2Client</li>
+                    <li>Added method to ManagementApi: listOauth2Clients</li>
+                </ul>
+            </li>
+            <li> Added websockets as alternative way of sending requests
+                <ul>
+                    <li>Added method to AuthApi: getWebSocketAuthorizationToken</li>
+                    <li>Added method to AuthApi: authorizeWebSocket</li>
+                </ul>
+            </li>
+            <li>Users cant use same TOTP code twice in a short period of time</li>
+            
+        </ul>
+        <h2>Version 1.10.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>Splitted Api to client and managment route
+                <ul>
+                    <li>/api -> /main and /mgm</li>
+                </ul>
+            </li>
+            <li>Renamed PublicApi to AuthApi</li>
+            <li>Created new Api: MiscApi
+                <ul>
+                    <li>Added method to MiscApi: ping</li>
+                    <li>Added method to MiscApi: getApiScheme</li>
+                </ul>
+            </li>
+            <li>Removed method from AuthApi: getApiScheme</li>
+            <li>Changed StaffMember to User
+                <ul>
+                    <li>Changed StaffMemberApi into UserApi</li>
+                    <li>Authorization header X-Member-Token changed to X-User-Token</li>
+                    <li>listOrganizationsOfStaffMember => listOrganizationsOfUser</li>
+                    <li>listStaffMembersOfOrganization => listUsersOfOrganization</li>
+                    <li>listStaffMembers => listUsers</li>
+                    <li>getStaffMember => getUser</li>
+                    <li>createStaffMemberToken => createUserToken</li>
+                    <li>removeStaffMemberFromOrganization => removeUserFromOrganization</li>
+                    <li>addStaffMemberToOrganization => addUserToOrganization</li>
+                    <li>setStaffMemberBlocked => setUserBlocked</li>
+                    <li>activateStaffMember => activateUser</li>
+                    <li>deleteStaffMember => deleteUser</li>
+                    <li>createStaffMemberAndOrganization => createUserAndOrganization</li>
+                    <li>createStaffMember => createUser</li>
+                </ul>
+            </li>
+            <li>Added new authentication method: Login through username and password that returns a cookie with session Id
+                <ul>
+                    <li>Added method to AuthApi: login</li>
+                    <li>Added method to AuthApi: logout</li>
+                </ul>
+            </li>
+            <li>Added method to UserApi: changePassword</li>
+            <li>Added password reset
+                <ul>
+                    <li>Added method to AuthApi: startPasswordReset</li>
+                    <li>Added method to AuthApi: checkChangePasswordToken</li>
+                    <li>Added method to AuthApi: resetPassword</li>
+                </ul>
+            </li>
+            <li>Added two factor authentication
+                <ul>
+                    <li>Added method to UserApi: enableSecondFactor</li>
+                    <li>Added method to UserApi: confirmEnablingOfSecondFactor</li>
+                    <li>Added method to UserApi: disableSecondFactor</li>
+                    <li>Added method to UserApi: confirmDisablingOfSecondFactor</li>
+                    <li>Added method to UserApi: resendSecondFactorCode (for acitivation and deactivation only)</li>
+                    <li>Added method to AuthApi: confirmSecondFactorAuthentication</li>
+                    <li>Added method to AuthApi: resendSecondFactorCode (for regular authentication)</li>
+                </ul>
+            </li>
+            <li>Added API calls limiter</li>
+            <li>SolutionId is now serverId and serverId field has been removed</li>
+            <li>Invitations were refactored
+                <ul>
+                    <li>Manager Invitations
+                        <ul>
+                            <li>Added fields: description, sendMail(requires email), forceEmail(requires email), autoActivate(requires email)</li>
+                            <li>You can now create invitation without email as long as description is provided</li>
+                            <li>You can choose if you want to send email by field sendMail</li>
+                            <li>You can force user to create account using the email that was used to receive invitation by setting forceMail=true</li>
+                            <li>You can skip the need of veryfing user email if you set autoActivate=true</li>
+                        </ul>
+                    </li>
+                    <li>Organization Invitations
+                        <ul>
+                            <li>Added fields: description, sendMail(requires email), forceEmail(requires email)</li>
+                            <li>You can now create invitation without email as long as description is provided</li>
+                            <li>You can choose if you want to send email by field sendMail</li>
+                            <li>You can limit usability of invitation to Users whos mail is the same as in the invitation by setting forceMail=true</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+
+        </ul>
+
+        <h2>Version 1.8.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>To all `list` methods added optional `query` parameter which filter results, if omitted, methods work as before</li>
+            <li>Renamed methods in ManagementApi: getStaffMemberProfile=>getStaffMember, listStaffMembersProfiles=>listStaffMembers, listStaffMembersProfilesInOrganization=>listStaffMembersOfOrganization, getOrganizationProfile=>getOrganization, listOrganizationsProfiles=>listOrganizations, listOrganizationContexts=>listContextsOfOrganization, listInstancesInOrganization=>listSolutionsOfInstance, listSolutionsInOrganization=>listSolutionsOfOrganization</li>
+            <li>Renamed methods in OrganizationApi:  getOrganizationProfile=>getOrganization</li>
+            <li>Added methods to ManagementApi: checkAuthorization, getContext, listContextsOfInstance, listContextsOfSolution, listOrganizationsOfStaffMember, listSolutionsOfContext</li>
+            <li>Added method to StaffMemberApi: checkAuthorization</li>
+            <li>Added method to ContextApi: listSolutionsOfContext</li>
+            <li>Added method to PublicApi: getApiScheme</li>
+        </ul>
+        
+        <h2>Version 1.7.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>Added new PublicApi which contains methods which do not require authorization</li>
+            <li>Added open registration of staff member with email validation</li>
+            <li>Added roles to staff members</li>
+            <li>You can now invite users to your organizations</li>
+            <li>Managment can invite users to register</li>
+            <li>Staff member can create new organization, if he does not belong to any one with owner rights</li>
+            <li>Staff member has `activated` flag which means that the account has verified email, management can switch this flag using `activateStaffMember` method</li>
+            <li>Staff member has `blocked` flag which means that this account is not usable and managment has method to set that flag `setStaffMemberBlocked`</li>
+        </ul>
+        <h4><a href="/docs/interfaces/management.IManagementApi.html">ManagementApi</a></h4>
+        <ul>
+            <li>createStaffMember - has new parameter `activated` and parameter `organizationId` is replaced by optional object `organization`</li>
+            <li>createStaffMemberAndOrganization - has new parameter `activated`</li>
+            <li>new methods: activateStaffMember, setStaffMemberBlocked, addStaffMemberToOrganization, updateStaffMemberRolesInOrganization, removeStaffMemberFromOrganization, createInvitation, listInvitations, deleteInvitation</li>
+        </ul>
+        <h4><a href="/docs/interfaces/organization.IOrganizationApi.html">OrganizationApi</a></h4>
+        <ul>
+            <li>new methods: createOrganization, listStaffMembersOfOrganization, joinToOrganization, inviteToOrganization, listInvitations, deleteInvitation</li>
+        </ul>
+        <h4><a href="/docs/interfaces/pub.IPublicApi.html">PublicApi</a></h4>
+        <ul>
+            <li>new methods: register, validateAccountToken, resendAccountValidationToken, checkInvitation</li>
+            <li>Moved method `createToken` from StaffMemberApi</li>
+        </ul>
+        
+        <hr/>
+        
+        <h2>Version 1.6.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>Added <a href="/docs/interfaces/mail.IMailApi.html">MailApi</a> for managment</li>
+        </ul>
+        
+        <hr/>
+        
+        <h2>Version 1.5.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>Removed field `serverContext` in Context structure and unified it with Context ID, it means that you send the same Context ID to this api and to the endpoint</li>
+        </ul>
+        
+        <hr/>
+        
+        <h2>Version 1.4.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>StaffMember can be member of many organizations</li>
+        </ul>
+        <h3>API changes</h3>
+        <h4><a href="/docs/interfaces/context.IContextApi.html">ContextApi</a></h4>
+        <ul>
+            <li>Removed method `listContexts` and replace it by methods below</li>
+            <li>Added method `listContextsOfOrganization`</li>
+            <li>Added method `listContextsOfInstance`</li>
+            <li>Added method `listContextsOfSolution`</li>
+            <li>Added method `listContextsOfCurrentSolution` which can be called only by AccessKey session</li>
+        </ul>
+        <h4><a href="/docs/interfaces/instance.IInstanceApi.html">InstanceApi</a></h4>
+        <ul>
+            <li>Renamed method `listInstances` into `listInstancesOfOrganization` and added `organizationId` parameter</li>
+        </ul>
+        <h4><a href="/docs/interfaces/organization.IOrganizationApi.html">OrganizationApi</a></h4>
+        <ul>
+            <li>Method `getOrganizationProfile` need organization's id parameter</li>
+            <li>Method `setOrganizationProfile` need organization's id parameter</li>
+            <li>Added method `listOrganizations`</li>
+        </ul>
+        <h4><a href="/docs/interfaces/solution.ISolutionApi.html">SolutionApi</a></h4>
+        <ul>
+            <li>Removed method `listSolutions` and replace it by methods below</li>
+            <li>Added method `listSolutionsOfInstance`</li>
+            <li>Added method `listSolutionsOfOrganization`</li>
+            <li>Moved method `getSolutionsContexts` to `ContextApi.listContextsOfSolution`</li>
+            <li>Removed method `listAccessKeys` and replace it by methods below</li>
+            <li>Added method `listAccessKeysOfSolution`</li>
+            <li>Added method `listAccessKeysOfInstance`</li>
+            <li>Added method `listAccessKeysOfOrganization`</li>
+        </ul>
+        <h4><a href="/docs/interfaces/staffMember.IStaffMemberApi.html">StaffMemberApi</a></h4>
+        <ul>
+            <li>Method `getInfo` no more returns `instances` and `organization` properties, instead it returns list of availabe organizations</li>
+            <li>In StaffMemberProfile property `organization` is replaced by property `organizations` which contains list of availabe organizations</li>
+        </ul>
+        
+        <hr/>
+        
+        <h2>Version 1.3.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>Changed field name `connections` into `shares` in ContextInfo structure</li>
+            <li>Added field `serverId` into Solution structure</li>
+            <li>
+                Changed User into StaffMember
+                <ul>
+                    <li>Changed UserApi into StaffMemberApi</li>
+                    <li>Authorization header X-Dev-Token changed to X-Member-Token</li>
+                    <li>
+                        ManagementApi rename methods:
+                        <ul>
+                            <li>createUser => createStaffMember</li>
+                            <li>createUserAndOrganization => createStaffMemberAndOrganization</li>
+                            <li>deleteUser => deleteStaffMember</li>
+                            <li>createUserToken => createStaffMemberToken</li>
+                            <li>getUserProfile => getStaffMemberProfile</li>
+                            <li>listUsersProfiles => listStaffMembersProfiles</li>
+                            <li>listUsersProfilesInOrganization => listStaffMembersInOrganization</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        
+        <hr />
+        
+        <h2>Version 1.2.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>Added paging parameters (`skip`, `limit`, `sortOrder`) in all list methods</li>
+            <li><a href="/docs/interfaces/context.IContextApi.html">ContextApi</a>: listContexts, listUsersFromContext</li>
+            <li><a href="/docs/interfaces/instance.IInstanceApi.html">InstanceApi</a>: listInstances</li>
+            <li><a href="/docs/interfaces/management.IManagementApi.html">ManagementApi</a>: listUsersProfiles, listUsersProfilesInOrganization, listOrganizationsProfiles, listOrganizationContexts, listContexts, listInstances, listInstancesInOrganization, listSolutions, listSolutionsInInstance, listSolutionsInOrganization</li>
+            <li><a href="/docs/interfaces/solution.ISolutionApi.html">SolutionApi</a>: listSolutions, getSolutionsContexts, listAccessKeys</li>
+        </ul>
+        
+        <hr />
+        
+        <h2>Version 1.1.0</h2>
+        <h3>Major changes</h3>
+        <ul>
+            <li>Add new elements: Organization, Solution, Instance</li>
+            <li>Organization: it groups users and all staff is under it (staff is not under user anymore)</li>
+            <li>Instance: it represents instance of Endpoint. An organization can have many instances, but now it has only one</li>
+            <li>Solution: it groups contexts. Every context has now one solution as a parent. A context has many solutions</li>
+            <li>You can now add context from one solution to another</li>
+            <li>Context has new field `scope` (private/public) and if it is set to private, the context cannot be connected with another solution</li>
+            <li>AccessKey is now under solution (not under user) and it allows to access all context from solution (direct children and connected ones)</li>
+            <li>Removed `accessPubKey` field from Context which was connection between context and AccessKey. Now AccessKey has permission inherited from solution (described in point above)</li>
+            <li>Fields `name` and `webpage` was moved from User to Organization</li>
+        </ul>
+        <h3>API changes</h3>
+        <h4><a href="/docs/interfaces/context.IContextApi.html">ContextApi</a></h4>
+        <ul>
+            <li>Removed `dveloperId` field from ContextInfo structure and added `solution`, `instance`, `organization` and `connections` fields</li>
+            <li>Removed `accessPubKey` field from ContextProfile structure and added `scope` field</li>
+            <li>When you call `createContext` method you have to pass `solutionId` parameter to determine the parent of a created context</li>
+            <li>Added new method `addContextToSolution` which connects context with solution</li>
+            <li>Added new method `removeContextFromSolution` which disconnects context with solution</li>
+        </ul>
+        <h4><a href="/docs/interfaces/instance.IInstanceApi.html">InstanceApi (NEW)</a></h4>
+        <ul>
+            <li>New api to access Instance structure</li>
+            <li>Added methods: getInstance, listInstances, updateInstance</li>
+        </ul>
+        <h4><a href="/docs/interfaces/organization.IOrganizationApi.html">OrganizationApi (NEW)</a></h4>
+        <ul>
+            <li>New api to access Organization structure</li>
+            <li>Added methods: getOrganizationProfile, setOrganizationProfile</li>
+        </ul>
+        <h4><a href="/docs/interfaces/solution.ISolutionApi.html">SolutionApi (NEW)</a></h4>
+        <ul>
+            <li>New api to access Solution structure</li>
+            <li>Added methods: getSolution, listSolutions, createSolution, updateSolution, deleteSolution, getSolutionsContexts</li>
+            <li>Moved methods from UserApi: createAccessKey, deleteAccessKey, getAccessKey, listAccessKeys</li>
+        </ul>
+        <h4><a href="/docs/interfaces/user.IUserApi.html">UserApi</a></h4>
+        <ul>
+            <li>Added `organization` field to UserProfile structure and removed fields: `webpage` (moved to Organization), `apiUrl` (moved to Instance)</li>
+            <li>Removed `webpage` field from SetProfileModel structure</li>
+            <li>Removed methods: createAccessKey, deleteAccessKey, getAccessKey, listAccessKeys (moved to SolutionApi)</li>
+            <li>Added `getInfo` method which returns info about logged User, current Organization and Instances in Organization</li>
+        </ul>
+        <h4><a href="/docs/interfaces/management.IManagementApi.html">ManagementApi</a></h4>
+        <ul>
+            <li>Removed `listUserContexts` method because Context is no more under User (replacement is new `listOrganizationContexts` method)</li>
+            <li>Added methods to manage Organization: createOrganization, deleteOrganization, getOrganizationProfile, listOrganizationsProfiles, listUsersProfilesInOrganization</li>
+            <li>Method `createUser` now requires id of existing organization under which a new user will be created</li>
+            <li>Added method `createUserAndOrganization` which replace functionality of old `createUser` - it setup new account</li>
+            <li>Method `deleteUser` removes only given user from Organization, to remove whole account call new `deleteOrganization` method</li>
+            <li>Added methods connected with new Instance structure: getInstance, listInstances, listInstancesInOrganization</li>
+            <li>Added methods connected with new Solution structure: getSolution, listSolutions, listSolutionsInInstance, listSolutionsInOrganization</li>
+        </ul>
+    </div>
+    <script type="text/javascript" src="assets/script.js?v=1"></script>
+</body>
+</html>

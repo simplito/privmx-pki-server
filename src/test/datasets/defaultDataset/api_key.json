@@ -1,0 +1,12 @@
+[
+  {
+    "_id": "66cc7e57c367c25f9213abf3",
+    "user": "6613b6a0e48944ef348ae320",
+    "clientSecret": "myverylongandsecuresecretforapikey",
+    "name": "My ApiKey",
+    "maxScope": [
+      "user:read"
+    ],
+    "enabled": true
+  }
+]

@@ -1,0 +1,27 @@
+version: "3"
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  fakemail:
+    image: 'mailhog/mailhog'
+    networks:
+      - app-tier
+  mongodb:
+    image: 'dev.privmx.com:5050/cloud/cloud-server/mongo-with-rs:7'
+    networks:
+      - app-tier
+  server:
+    image: 'node:22'
+    networks:
+      - app-tier
+    volumes:
+      - './:/app'
+    ports:
+      - "8101:8101"
+    depends_on:
+      - fakemail
+      - mongodb
+    command: sh -c "cd /app && npm run e2e-tests"

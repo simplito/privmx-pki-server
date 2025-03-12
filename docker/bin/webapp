@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd /work/webapp
+exec node out/index.js /work/webapp/config/config.json

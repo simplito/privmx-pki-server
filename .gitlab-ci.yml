@@ -1,0 +1,104 @@
+image: node:22-bullseye-slim
+
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_TLS_CERTDIR: ""
+
+build_main:
+  stage: build
+  image: docker:20.10.17
+  services:
+    - name: docker:20.10.17-dind
+      command: ["--tls=false"]
+    - name: dev.privmx.com:5050/teamserverdev/privmx-server-ee/mongo-with-rs2:7
+      alias: mongodb
+    - name:  mailhog/mailhog
+      alias: fakemail
+  script:
+    - export MONGODB_IP=$(cat /etc/hosts | grep mongodb | awk '{print $1}')
+    - export FAKEMAIL_IP=$(cat /etc/hosts | grep fakemail | awk '{print $1}')
+    - docker build --add-host=fakemail:$FAKEMAIL_IP --add-host=mongodb:$MONGODB_IP --build-arg "MONGO_URL=mongodb://mongodb" .
+  except:
+    - tags
+    - master
+    - /^hotfix-.*$/
+
+build_and_publish_docker_base_image:
+  stage: build
+  image: docker:20.10.17
+  services:
+    - name: docker:20.10.17-dind
+      command: ["--tls=false"]
+    - name: dev.privmx.com:5050/cloud/cloud-server/mongo-with-rs2:7
+      alias: mongodb
+    - name:  mailhog/mailhog
+      alias: fakemail
+  script:
+    - export MONGODB_IP=$(cat /etc/hosts | grep mongodb | awk '{print $1}')
+    - export FAKEMAIL_IP=$(cat /etc/hosts | grep fakemail | awk '{print $1}')
+    - export IMAGE_ID=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --add-host=fakemail:$FAKEMAIL_IP --add-host=mongodb:$MONGODB_IP --build-arg "MONGO_URL=mongodb://mongodb" -t $IMAGE_ID .
+    - docker push $IMAGE_ID
+  except:
+    - tags
+  only:
+    - master
+    - /^hotfix-.*$/
+
+tag_docker_image:
+  stage: build
+  image: docker:20.10.17
+  services:
+    - name: docker:20.10.17-dind
+      command: ["--tls=false"]
+  script:
+    - export IMAGE_ID=$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+    - export IMAGE_TAG_ID=$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $IMAGE_ID
+    - docker tag $IMAGE_ID $IMAGE_TAG_ID
+    - docker push $IMAGE_TAG_ID
+  except:
+    - branches
+  only:
+    - tags
+
+deploy_to_dev:
+  stage: deploy
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  script:
+    - export IMAGE_ID=$CI_REGISTRY_IMAGE:${CI_COMMIT_TAG:-$CI_COMMIT_SHORT_SHA}
+    - echo $KUBE_DEV_CONFIG_FILE_CONTENT > kube-config.json
+    - export KUBECONFIG=$PWD/kube-config.json
+    - kubectl set image deployment/server-cloud-backend-deployment server-cloud-backend=$IMAGE_ID
+  only:
+    - master
+    - tags
+  environment:
+    name: dev
+    url: https://webapp-template.pmxbox.com
+
+deploy_to_prod:
+  stage: deploy
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: ['']
+  script:
+    - export IMAGE_ID=$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - echo $KUBE_PROD_CONFIG_FILE_CONTENT > kube-config.json
+    - export KUBECONFIG=$PWD/kube-config.json
+    - kubectl set image deployment/server-webapp-template-backend-deployment server-webapp-template-backend=$IMAGE_ID
+  except:
+    - branches
+  only:
+    - tags
+  when: manual
+  environment:
+    name: prod
+    url: https://api.webapp-template

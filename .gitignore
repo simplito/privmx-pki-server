@@ -1,0 +1,12 @@
+/node_modules
+/out
+/storage
+/zip
+/conf
+/public/docs
+/public/tsdocs
+/slatedocs/includes
+/slatedocsbuild
+/docker/work
+/src/docs/docs.json
+/.vscode
