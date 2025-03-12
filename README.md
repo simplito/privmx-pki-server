@@ -2,7 +2,7 @@
 
 ### Mongo
 
-Webapp Template Server requires a connection to MongoDB with a replica set enabled. If you don't have one, you can set it up using the script below (Docker-based):
+PrivMX PKI Server requires a connection to MongoDB with a replica set enabled. If you don't have one, you can set it up using the script below (Docker-based):
 
 ```
 ./scripts/mongo.sh
