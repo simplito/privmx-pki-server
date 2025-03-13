@@ -3,6 +3,7 @@ import * as db from "../db/Model";
 import * as types from "../types";
 import { MongoDbManager } from "../db/MongoDbManager";
 import { UserRepository } from "./UserRepository";
+import { Crypto } from "../utils/Crypto";
 export interface ApiKeyAndUser {
     apikey: db.ApiKey|null;
     user: db.User|null;
@@ -17,6 +18,20 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
         super(dbManager, ApiKeyRepository.COLLECTION_NAME);
     }
     
+    async create(userId: types.user.UserId, name: types.auth.ApiKeyName, scopes: types.core.Scope[], publicKey: types.core.PubKey|undefined) {
+        const apiKey: db.ApiKey = {
+            _id: this.generateId(),
+            user: userId,
+            clientSecret: publicKey ? this.getApiKeySecretFromPubKey(publicKey) : this.generateSecret(),
+            name: name,
+            publicKey: publicKey,
+            maxScope: scopes,
+            enabled: true,
+        };
+        await this.insert(apiKey);
+        return apiKey;
+    }
+
     async addApiKey(model: {maxScope: types.core.Scope[], userId: types.user.UserId, clientSecret: types.auth.ClientSecret, name: types.auth.ApiKeyName, pubKey?: types.core.PubKey}) {
         const apiKey: db.ApiKey = {
             _id: this.generateId(),
@@ -84,5 +99,13 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
         }
         const {users, ...apiKey} = ele;
         return {apikey: apiKey, user: users[0]};
+    }
+
+    private generateSecret() {
+        return Crypto.randomBytes(16).toString("hex") as types.auth.ClientSecret;
+    }
+    
+    private getApiKeySecretFromPubKey(pubKey: types.core.PubKey) {
+        return Crypto.md5(Buffer.from(pubKey, "utf8")).toString("hex") as types.auth.ClientSecret;
     }
 }
