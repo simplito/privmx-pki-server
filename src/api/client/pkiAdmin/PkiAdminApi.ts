@@ -6,6 +6,7 @@ import { AuthorizationHolder } from "../../../requestScopeService/AuthorizationH
 import { UserIdentityService } from "../../../service/UserIdentityService";
 import * as PkiAdminApiTypes from "./PkiAdminApiTypes";
 import { IPkiAdminApi } from "./PkiAdminApiTypes";
+import { AppException } from "../../AppException";
 
 export class PkiAdminApi extends BaseApi implements IPkiAdminApi {
     
@@ -22,18 +23,26 @@ export class PkiAdminApi extends BaseApi implements IPkiAdminApi {
     
     @ApiMethod({
         scope: "ignore",
-        errorCodes: ["USER_DOES_NOT_EXIST"],
+        errorCodes: ["KEY_ALREADY_EXISTS"],
     })
     async setKey(model: PkiAdminApiTypes.SetKeyModel): Promise<types.core.OK> {
+        const check = await this.userIdentityService.getCurrentKey(model.userId, model.host, model.contextId);
+        if (check?.userPubKey === model.userPubKey) {
+            throw new AppException("KEY_ALREADY_EXISTS");
+        }
         await this.userIdentityService.setKey(model.userId, model.userPubKey, model.host, model.contextId);
         return "OK";
     }
     
     @ApiMethod({
         scope: "ignore",
-        errorCodes: ["USER_DOES_NOT_EXIST"],
+        errorCodes: ["NO_KEY_FOR_USER"],
     })
     async deleteKey(model: PkiAdminApiTypes.DeleteKeyModel): Promise<types.core.OK> {
+        const exists = await this.userIdentityService.getCurrentKey(model.userId, model.host, model.contextId);
+        if (!exists) {
+            throw new AppException("NO_KEY_FOR_USER");
+        }
         await this.userIdentityService.deleteKey(model.userId, model.host, model.contextId);
         return "OK";
     }
