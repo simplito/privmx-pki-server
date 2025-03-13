@@ -57,7 +57,7 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
     async getCurrentKey(userId: string, host: string, contextId: string) {
         const query = { userId, host, contextId };
         const result = await this.getCollection().findOne(query, {sort: {createDate: -1}});
-        return this.convertUserIdentity(result) as UserIdentity;
+        return this.convertUserIdentity(result);
     }
     
     /**
@@ -72,7 +72,7 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
         // returns latest entry with date lower or equal to requested date
         const query = { userId, host, contextId, createDate: {$lte: date} };
         const result = await this.getCollection().findOne(query, {sort: {createDate: -1}});
-        return this.convertUserIdentity(result) as UserIdentity;
+        return this.convertUserIdentity(result);
     }
 
     /**
@@ -98,7 +98,7 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
     async verifyKey(userId: string, host: string, contextId: string, userPubKey: string, date: number) {
         const query = { userId, host, contextId, userPubKey, createDate: {$lte: date} };
         const result = await this.getCollection().find(query).sort({createDate: -1}).limit(1).toArray();
-        return this.convertUserIdentity(result[0]) as UserIdentity;
+        return this.convertUserIdentity(result[0]);
     }
 
     private recordToEntry(record: db.UserIdentityRecord): UserIdentity {
