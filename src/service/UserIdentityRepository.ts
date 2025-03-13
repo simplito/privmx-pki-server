@@ -9,7 +9,7 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
     constructor(dbManager: MongoDbManager) {
         super(dbManager, UserIdentityRepository.COLLECTION_NAME);
     }
-        
+    
     /**
      * Sets a new public key for a user or updates an existing one.
      * @param userId
@@ -57,7 +57,7 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
     async getCurrentKey(userId: string, host: string, contextId: string) {
         const query = { userId, host, contextId };
         const result = await this.getCollection().findOne(query, {sort: {createDate: -1}});
-        return this.convertUserIdentity(result);
+        return this.convertSingle(result);
     }
     
     /**
@@ -67,14 +67,14 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
      * @param contextId
      * @param date
      */
-
+    
     async getKeyAt(userId: string, host: string, contextId: string, date: number) {
         // returns latest entry with date lower or equal to requested date
         const query = { userId, host, contextId, createDate: {$lte: date} };
         const result = await this.getCollection().findOne(query, {sort: {createDate: -1}});
-        return this.convertUserIdentity(result);
+        return this.convertSingle(result);
     }
-
+    
     /**
      * Returns the modification history of the user's public key. If a key was deleted, the `pubKey` field is `null`.
      * @param userId
@@ -83,8 +83,8 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
      */
     async getKeyHistory(userId: string, host: string, contextId: string) {
         const query = { userId, host, contextId };
-        const result = await this.getCollection().findOne(query, {sort: {createDate: -1}});
-        return this.convertUserIdentity(result);
+        const result = await this.getCollection().find(query).sort({createDate: -1}).toArray();
+        return this.convertMany(result);
     }
     
     /**
@@ -98,21 +98,26 @@ export class UserIdentityRepository extends BaseRepository<db.UserIdentityRecord
     async verifyKey(userId: string, host: string, contextId: string, userPubKey: string, date: number) {
         const query = { userId, host, contextId, userPubKey, createDate: {$lte: date} };
         const result = await this.getCollection().find(query).sort({createDate: -1}).limit(1).toArray();
-        return this.convertUserIdentity(result[0]);
+        return this.convertSingle(result[0]);
     }
-
+    
     private recordToEntry(record: db.UserIdentityRecord): UserIdentity {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const {_id, ...userIdentity} = record;
         return userIdentity;
     }
-
-    private convertUserIdentity(fromDB: db.UserIdentityRecord | db.UserIdentityRecord[] | null): UserIdentity | UserIdentity[] | null {
+    
+    private convertMany(fromDB: db.UserIdentityRecord[]  | null) {
         if (!fromDB) {
             return null;
         }
-        if (Array.isArray(fromDB)) {
-            return fromDB.map(x => this.recordToEntry(x));
+        return fromDB.map(x => this.recordToEntry(x));
+    }
+    
+    private convertSingle(fromDB: db.UserIdentityRecord | null): UserIdentity | null {
+        if (!fromDB) {
+            return null;
         }
         return this.recordToEntry(fromDB);
-    }    
+    }
 }

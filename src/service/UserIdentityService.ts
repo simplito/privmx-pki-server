@@ -6,7 +6,7 @@ import { UserIdentityRepository } from "./UserIdentityRepository";
 export class UserIdentityService {
     
     constructor(
-        private userIdentityRepository: UserIdentityRepository
+        private userIdentityRepository: UserIdentityRepository,
     ) {
     }
     
