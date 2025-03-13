@@ -1,35 +1,12 @@
-// import { AppException } from "../api/AppException";
 import { UserIdentity } from "../api/client/pki/PkiApiTypes";
 import * as types from "../types";
-// import { UserRepository } from "./UserRepository";
-// import * as db from "../db/Model";
-// import { TokenRepository } from "./TokenRepository";
-// import { DbInconsistencyError } from "../error/DbInconsistencyError";
-// import { LoggedUserDoesNotExist } from "../error/LoggedUserDoesNotExist";
-// import { UserId } from "../types/user";
-// import { SrpAuthenticationService } from "./SrpAuthenticationService";
-// import { PasswordService } from "./PasswordService";
-// import { ConfigService } from "./ConfigService";
-// import { ApiKeyRepository } from "./ApiKeyRepository";
-// import { Crypto } from "../utils/Crypto";
-// import { SessionRepository } from "./SessionRepository";
-// import { WebSocketService } from "./WebSocketService";
-// import { MailService } from "./mail/MailService";
+
 import { UserIdentityRepository } from "./UserIdentityRepository";
-// import { UserIdentityKey } from "../db/Model";
 
 export class UserIdentityService {
     
     constructor(
-        private userIdentityRepository: UserIdentityRepository,
-        // private tokenRepository: TokenRepository,
-        // private srpAuthenticationService: SrpAuthenticationService,
-        // private passwordService: PasswordService,
-        // private configService: ConfigService,
-        // private apiKeyRepository: ApiKeyRepository,
-        // private sessionRepository: SessionRepository,
-        // private webSocketService: WebSocketService,
-        // private mailService: MailService,
+        private userIdentityRepository: UserIdentityRepository
     ) {
     }
     
