@@ -1,6 +1,5 @@
+import { AppException } from "../api/AppException";
 import { UserIdentity } from "../api/client/pki/PkiApiTypes";
-import * as types from "../types";
-
 import { UserIdentityRepository } from "./UserIdentityRepository";
 
 export class UserIdentityService {
@@ -14,13 +13,11 @@ export class UserIdentityService {
         await this.userIdentityRepository.setKey(userId, userPubKey, host, contextId);
     }
     
-    async deleteKey(userId: string, host: string, contextId: string): Promise<types.core.OK> {
+    async deleteKey(userId: string, host: string, contextId: string): Promise<void> {
         const result = await this.userIdentityRepository.deleteKey(userId, host, contextId);
-        if (result) {
-            return Promise.resolve("OK");
-        }
-        throw new Error("Cannot add info about user pub key deletion");
-        
+        if (!result) {
+            throw new AppException("NO_KEY_FOR_USER");
+        }      
     }
     
     async getCurrentKey(userId: string, host: string, contextId: string): Promise<UserIdentity|null> {

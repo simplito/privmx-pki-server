@@ -76,6 +76,9 @@ export const API_ERROR_CODES = {
     "INVALID_TOKEN"                          : {code: 0x004C, message: "Token is invalid", description: "Token is invalid"},
     "METHOD_CALLABLE_WITH_SESSION_SCOPED_TOKENS_ONLY" : {code: 0x004D, message: "Method callable with session scoped tokens only", description: "Method callable with session scoped tokens only"},
     "USER_DOES_NOT_EXIST"                    : {code: 0x004E, message: "User does not exist", description: "User with given id does not exist"},
+    "NO_KEY_FOR_USER"                        : {code: 0x004F, message: "No key for user", description: "There is no key matching the given userId and the given context"},
+    "NO_KEY_FOR_USER_AT_GIVEN_TIME"          : {code: 0x0050, message: "No key for user at given time", description: "There is no key matching given userId and context at given time"},
+    "KEY_ALREADY_EXISTS"                     : {code: 0x0051, message: "The key already exists", description: "The key for the given user and the given context already exists"},
     
 };
 
