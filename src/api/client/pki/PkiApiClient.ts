@@ -30,4 +30,11 @@ export class PkiApiClient implements PkiApiTypes.IPkiApi {
         return this.request("verifyKey", model);
     }
     
+    verifyHost(model: PkiApiTypes.VerifyHostModel): Promise<boolean> {
+        return this.request("verifyHost", model);
+    }
+    
+    getHost(model: PkiApiTypes.GetHostModel): Promise<PkiApiTypes.HostIdentity> {
+        return this.request("getHost", model);
+    }
 }
