@@ -20,6 +20,14 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      * @param hostUrl
      */
     async setHost(instanceId: types.pki.InstanceId, hostPubKey: string, hostUrl: types.pki.HostUrl) {
+        const host = await this.getCollection().findOne({hostPubKey}, {sort: {createDate: -1}});
+        if (host) {
+            throw new AppException("HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS");
+        }
+        const urlExists = await this.hasUrl(hostUrl);
+        if (urlExists) {
+            throw new AppException("URL_ALREADY_RESERVED_FOR_OTHER_HOST");
+        }
         const itemCreateDate = Date.now();
         const newItem: db.HostIdentityRecord = {
             _id: this.generateId(), createDate: itemCreateDate,
@@ -43,6 +51,11 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         if (hostIdentity.addresses.includes(url)) {
             throw new AppException("HOST_URL_ALREADY_EXISTS");
         }
+        const urlExists = await this.hasUrl(url);
+        if (urlExists) {
+            throw new AppException("URL_ALREADY_RESERVED_FOR_OTHER_HOST");
+        }
+
         hostIdentity.addresses.push(url);
         return this.getCollection().replaceOne({_id: hostIdentity._id}, hostIdentity, {upsert: true});
     }
@@ -98,6 +111,11 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
 
     async listHosts() {
         return this.convertMany(await this.getAll());
+    }
+
+    private async hasUrl(url: types.pki.HostUrl): Promise<boolean> {
+        const result = await this.getCollection().find({addresses: url}).toArray();
+        return result.length > 0;
     }
 
     private recordToEntry(record: db.HostIdentityRecord): HostIdentity {
