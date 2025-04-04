@@ -66,7 +66,14 @@ export class PkiApi extends BaseApi implements PkiApiTypes.IPkiApi {
     @ApiMethod({
         scope: ["read"]
     })
-    async verifyHost(model: PkiApiTypes.VerifyHostModel): Promise<boolean> {
+    async verifyHostById(model: PkiApiTypes.VerifyHostByIdModel): Promise<boolean> {
+        return this.hostIdentityService.verifyHostBy(model);
+    }
+
+    @ApiMethod({
+        scope: ["read"]
+    })
+    async verifyHostByPub(model: PkiApiTypes.VerifyHostByPubModel): Promise<boolean> {
         return this.hostIdentityService.verifyHostBy(model);
     }
 

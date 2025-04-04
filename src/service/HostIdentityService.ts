@@ -34,8 +34,8 @@ export class HostIdentityService {
         await this.hostIdentityRepository.deleteHost(instanceId);
     }
     
-    async verifyHostBy(params: HostIdentityFilter): Promise<boolean> {
-        return this.hostIdentityRepository.verifyHostBy(params);
+    async verifyHostBy(model: {hostUrl: types.pki.HostUrl, instanceId?: types.pki.InstanceId, hostPubKey?: string} ): Promise<boolean> {
+        return this.hostIdentityRepository.verifyHostBy(model);
     }
 
     async listHosts(): Promise<HostIdentity[]> {

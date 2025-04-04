@@ -6,7 +6,10 @@ import { AppException } from "../api/AppException";
 import { HostIdentity, HostIdentityFilter } from "../api/client/pki/PkiApiTypes";
 
 
-
+interface FilterAsQuery {
+    instanceId?: types.pki.InstanceId;
+    addresses?: types.pki.HostUrl
+}
 export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord> {
     
     static readonly COLLECTION_NAME = "hostidentity";
@@ -92,11 +95,18 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
     }
 
     /**
-     * Verifies host by given filter
-     * @param filter 
+     * Verifies host
+     * @param model
      */
-    async verifyHostBy(filter: HostIdentityFilter) {
-        const result = await this.getCollection().find(filter).sort({createDate: -1}).limit(1).toArray();
+    async verifyHostBy(model: {hostUrl: types.pki.HostUrl, instanceId?: types.pki.InstanceId, hostPubKey?: string}) {
+        let query: any = {addresses: model.hostUrl};
+        if (model.instanceId) {
+            query.instanceId = model.instanceId;
+        }
+        if (model.hostPubKey) {
+            query.hostPubKey = model.hostPubKey
+        }
+        const result = await this.getCollection().find(query).sort({createDate: -1}).limit(1).toArray();
         return result.length > 0;
     }
 
@@ -105,7 +115,14 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      * @param filter 
      */
     async getHost(filter: HostIdentityFilter) {
-        const result = await this.getCollection().findOne(filter, {sort: {createDate: -1}})
+        let query: FilterAsQuery = {};
+        if (filter.hostUrl) {
+            query.addresses = filter.hostUrl;
+        }
+        if (filter.instanceId) {
+            query.instanceId = filter.instanceId;
+        }
+        const result = await this.getCollection().findOne(query, {sort: {createDate: -1}})
         return this.convertSingle(result);
     }
 
@@ -137,4 +154,5 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         }
         return this.recordToEntry(fromDB);
     }
+
 }

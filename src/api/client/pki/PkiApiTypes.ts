@@ -16,7 +16,7 @@ export interface HostIdentity {
 
 export interface HostIdentityFilter {
     instanceId?: types.pki.InstanceId;
-    addresses?: types.pki.HostUrl[];
+    hostUrl?: types.pki.HostUrl;
 };
 
 export interface GetCurrentKeyModel {
@@ -35,7 +35,15 @@ export interface VerifyKeyModel {
     userId: string, instanceId: types.pki.InstanceId, contextId: string, userPubKey: string, date: number
 }
 
-export type VerifyHostModel = HostIdentityFilter;
+export interface VerifyHostByIdModel {
+    instanceId: types.pki.InstanceId;
+    hostUrl: types.pki.HostUrl;
+}
+export interface VerifyHostByPubModel {
+    hostPubKey: string;
+    hostUrl: types.pki.HostUrl;
+}
+
 export type GetHostModel = HostIdentityFilter;
 
 export interface IPkiApi {
@@ -76,13 +84,21 @@ export interface IPkiApi {
    verifyKey(model: VerifyKeyModel): Promise<boolean>;
 
     /**
-     * Verifies the HostIdentity by the given filter.
+     * Verifies the HostIdentity by the given instanceId and hostUrl.
      * @param instanceId
      * @param hostPubKey
      * @param addresses
      */
-   verifyHost(model: VerifyHostModel): Promise<boolean>;
-
+    verifyHostById(model: VerifyHostByIdModel): Promise<boolean>;
+ 
+   /**
+     * Verifies the HostIdentity by the given instanceId and hostUrl.
+     * @param instanceId
+     * @param hostPubKey
+     * @param addresses
+     */
+    verifyHostByPub(model: VerifyHostByPubModel): Promise<boolean>;
+    
     /**
      * Gets the HostIdentity by the given filter.
      * @param instanceId

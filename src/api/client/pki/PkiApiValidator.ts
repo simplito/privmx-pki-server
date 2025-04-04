@@ -30,5 +30,20 @@ export class PkiApiValidator extends ApiValidator {
             userPubKey: this.pubKey,
             date: this.timestamp,
         }));
+
+        this.registerMethod("verifyHostById", this.builder.createObject({
+            instanceId: this.eccPub,
+            hostUrl: this.url,
+        }));
+
+        this.registerMethod("verifyHostByPub", this.builder.createObject({
+            hostPubKey: this.eccPub,
+            hostUrl: this.url,
+        }));
+
+        this.registerMethod("getHost", this.builder.createObject({
+            instanceId: this.builder.optional(this.eccPub),
+            hostUrl: this.builder.optional(this.url),
+        }));
     }
 }

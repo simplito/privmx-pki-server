@@ -6,8 +6,9 @@ import * as types from "../../../types";
 const userId: string = "user1";
 const userPubKey: string = "51WPnnGwztNPWUDEbhncYDxZCZWAFS4M9Yqv94N2335nL92fEn";
 const contextId: string = "32fcd0b5-ceb5-44a7-9990-0d999b9718e6";
-const instanceId = "AAAABBBBCCCCDDDDEEEEFFFF11112222333344445555666677" as types.pki.InstanceId;
-const hostPubKey = "AAAABBBBCCCCDDDDEEEEFFFF11112222333344445555666677";
+const instanceId = "8UV7xqdcyqYDcZomeZbv4YNXLhikz1gt5teR9Qgot8xknL6nhH" as types.pki.InstanceId;
+
+const hostPubKey = "8UV7xqdcyqYDcZomeZbv4YNXLhikz1gt5teR9Qgot8xknL6nhH";
 const hostUrl = "localhost:3000" as types.pki.HostUrl;
 
 export const test = testApi("client", "pki/", PkiApi, new PkiApiValidator(), call => {
@@ -33,11 +34,15 @@ export const test = testApi("client", "pki/", PkiApi, new PkiApiValidator(), cal
         userId, instanceId, contextId, userPubKey, date: Date.now(),
     })).setResult(true);
 
-    call("verifyHost", api => api.verifyHost({
-        instanceId, addresses: [hostUrl]
+    call("verifyHostById", api => api.verifyHostById({
+        instanceId, hostUrl: hostUrl
+    })).setResult(true);
+
+    call("verifyHostByPub", api => api.verifyHostByPub({
+        hostPubKey, hostUrl: hostUrl
     })).setResult(true);
 
     call("getHost", api => api.getHost({
-        instanceId, addresses: [hostUrl]
+        instanceId, hostUrl: hostUrl
     })).setResult({instanceId, hostPubKey, addresses: [hostUrl]});
 });

@@ -72,5 +72,8 @@ export interface IPkiAdminApi {
      */
     deleteHost(model: DeleteHostModel): Promise<types.core.OK>;
 
+    /**
+     * List hosts
+     */
     listHosts(): Promise<HostIdentity[]>;
 }

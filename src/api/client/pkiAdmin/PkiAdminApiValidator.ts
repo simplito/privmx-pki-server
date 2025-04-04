@@ -16,5 +16,26 @@ export class PkiAdminApiValidator extends ApiValidator {
             host: this.url,
             contextId: this.contextId,
         }));
+
+        this.registerMethod("setHost", this.builder.createObject({
+            hostPubKey: this.eccPub,
+            hostUrl: this.url
+        }));
+
+        this.registerMethod("addHostUrl", this.builder.createObject({
+            instanceId: this.eccPub,
+            hostUrl: this.url
+        }));
+
+        this.registerMethod("removeHostUrl", this.builder.createObject({
+            instanceId: this.eccPub,
+            hostUrl: this.url
+        }));
+
+        this.registerMethod("deleteHost", this.builder.createObject({
+            instanceId: this.eccPub
+        }));
+
+        this.registerMethod("listHosts", this.builder.empty);
     }
 }
