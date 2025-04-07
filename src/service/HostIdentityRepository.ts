@@ -64,7 +64,6 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
                 throw new AppException("HOST_URL_ALREADY_EXISTS");
             }
             else {
-                console.log("error", e);
                 throw new AppException("CANNOT_ADD_URL_TO_THE_HOST");
             }
         }
