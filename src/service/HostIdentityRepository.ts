@@ -19,25 +19,29 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
     
     /**
      * Sets a new host identity.
+     * @param instanceId
      * @param hostPubKey
      * @param hostUrl
      */
     async setHost(instanceId: types.pki.InstanceId, hostPubKey: string, hostUrl: types.pki.HostUrl) {
-        const host = await this.getCollection().findOne({hostPubKey}, {sort: {createDate: -1}});
-        if (host) {
-            throw new AppException("HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS");
-        }
-        const urlExists = await this.hasUrl(hostUrl);
-        if (urlExists) {
-            throw new AppException("URL_ALREADY_RESERVED_FOR_OTHER_HOST");
-        }
         const itemCreateDate = Date.now();
         const newItem: db.HostIdentityRecord = {
-            _id: this.generateId(), createDate: itemCreateDate,
+            createDate: itemCreateDate,
             instanceId, hostPubKey, addresses: [hostUrl] as types.pki.HostUrl[],
         };
-        const result = await this.insert(newItem);
-        return result.insertedId;
+        try {
+            const result = await this.insert(newItem);
+            return result.insertedId;    
+        } catch (e: any) {
+            if (e.code === 11000 && e.keyValue && e.keyValue.hostPubKey) {
+                throw new AppException("HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS");
+            }
+            else
+            if (e.code === 11000 && e.keyValue && e.keyValue.addresses) {
+                throw new AppException("URL_ALREADY_RESERVED");
+            }
+            else throw new AppException("CANNOT_ADD_HOST");
+        }
     }
     
     /**
@@ -46,21 +50,24 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      * @param url
      */
     async addHostUrl(instanceId: types.pki.InstanceId, url: types.pki.HostUrl) {
-        const query = { instanceId };
-        const hostIdentity = await this.getCollection().findOne(query);
-        if (! hostIdentity) {
-            throw new AppException("NO_HOST_BY_GIVEN_INSTANCE_ID");
+        try {
+            const result = await this.getCollection().updateOne({instanceId: instanceId}, 
+                {$addToSet: {addresses: url}});
+            if (result.matchedCount > 0 && result.modifiedCount === 0) {
+                throw new Error("exists");
+            }
+        } catch (e: any) {
+            if (e.code === 11000 && e.keyValue && e.keyValue.addresses) {
+                throw new AppException("URL_ALREADY_RESERVED");
+            }
+            if (e.message === "exists") {
+                throw new AppException("HOST_URL_ALREADY_EXISTS");
+            }
+            else {
+                console.log("error", e);
+                throw new AppException("CANNOT_ADD_URL_TO_THE_HOST");
+            }
         }
-        if (hostIdentity.addresses.includes(url)) {
-            throw new AppException("HOST_URL_ALREADY_EXISTS");
-        }
-        const urlExists = await this.hasUrl(url);
-        if (urlExists) {
-            throw new AppException("URL_ALREADY_RESERVED_FOR_OTHER_HOST");
-        }
-        
-        hostIdentity.addresses.push(url);
-        return this.getCollection().replaceOne({_id: hostIdentity._id}, hostIdentity, {upsert: true});
     }
     
     /**
@@ -69,16 +76,11 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      * @param url
      */
     async removeHostUrl(instanceId: types.pki.InstanceId, url: types.pki.HostUrl) {
-        const query = { instanceId };
-        const hostIdentity = await this.getCollection().findOne(query);
-        if (! hostIdentity) {
-            throw new AppException("NO_HOST_BY_GIVEN_INSTANCE_ID");
+        const result = await this.getCollection().updateOne({instanceId: instanceId}, 
+            {$pull: {addresses: url}});
+        if (result.modifiedCount === 0) {
+            throw new AppException("CANNOT_REMOVE_URL_FROM_THE_HOST");
         }
-        if (!hostIdentity.addresses.includes(url)) {
-            throw new AppException("HOST_URL_DOES_NOT_EXIST");
-        }
-        hostIdentity.addresses.splice(hostIdentity.addresses.indexOf(url), 1);
-        return this.getCollection().replaceOne({_id: hostIdentity._id}, hostIdentity, {upsert: true});
     }
     
     /**
@@ -86,12 +88,10 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      * @param instanceId
      */
     async deleteHost(instanceId: types.pki.InstanceId) {
-        const query = { instanceId };
-        const latest = await this.getCollection().findOne(query, {sort: {createDate: -1}});
-        if (! latest) {
+        const result = await this.getCollection().deleteOne({instanceId: instanceId})
+        if (result.deletedCount === 0) {
             throw new AppException("NO_HOST_BY_GIVEN_INSTANCE_ID");
         }
-        await this.getCollection().deleteOne(query);
     }
     
     /**
@@ -128,11 +128,6 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
     
     async listHosts() {
         return this.convertMany(await this.getAll());
-    }
-    
-    private async hasUrl(url: types.pki.HostUrl): Promise<boolean> {
-        const result = await this.getCollection().find({addresses: url}).toArray();
-        return result.length > 0;
     }
     
     private recordToEntry(record: db.HostIdentityRecord): HostIdentity {

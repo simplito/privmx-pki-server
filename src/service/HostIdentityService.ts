@@ -20,10 +20,7 @@ export class HostIdentityService {
     }
     
     async addHostUrl(instanceId: types.pki.InstanceId, hostUrl: types.pki.HostUrl): Promise<void> {
-        const result = await this.hostIdentityRepository.addHostUrl(instanceId, hostUrl);
-        if (!result) {
-            throw new AppException("CANNOT_ADD_URL_TO_THE_HOST");
-        }
+        await this.hostIdentityRepository.addHostUrl(instanceId, hostUrl);
     }
     
     async removeHostUrl(instanceId: types.pki.InstanceId, hostUrl: types.pki.HostUrl): Promise<void> {

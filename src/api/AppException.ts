@@ -85,8 +85,9 @@ export const API_ERROR_CODES = {
     "CANNOT_ADD_HOST"                        : {code: 0x0055, message: "Cannot add host.", description: "Cannot add host identity to the PKI."},
     "CANNOT_ADD_URL_TO_THE_HOST"             : {code: 0x0056, message: "Cannot add url to the given host.", description: "Cannot add the URL to the host identity identified by the given instanceId."},
     "CANNOT_FIND_HOST_BY_GIVEN_FILTER"       : {code: 0x0057, message: "Cannot find host by given filter.", description: "Cannot find the host identity by the given filter."},
-    "URL_ALREADY_RESERVED_FOR_OTHER_HOST"    : {code: 0x0058, message: "Given URL already reserved for other host.", description: "There is already a HostIdentity with the given URL associated to it."},
+    "URL_ALREADY_RESERVED"                   : {code: 0x0058, message: "Given URL already reserved.", description: "There is already a HostIdentity with the given URL associated to it."},
     "HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS" : {code: 0x0059, message: "Host Identity with the given public key already exists.", description: "There is already a Host Identity with the given public key."},
+    "CANNOT_REMOVE_URL_FROM_THE_HOST"        : {code: 0x0059, message: "Cannot remove url from the given host.", description: "Cannot remove the URL from the host identity identified by the given instanceId."},
     
 };
 
