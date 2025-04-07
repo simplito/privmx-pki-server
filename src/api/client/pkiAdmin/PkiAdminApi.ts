@@ -49,15 +49,15 @@ export class PkiAdminApi extends BaseApi implements IPkiAdminApi {
         await this.userIdentityService.deleteKey(model.userId, model.instanceId, model.contextId);
         return "OK";
     }
-
+    
     @ApiMethod({
         scope: "ignore",
         errorCodes: ["CANNOT_ADD_HOST"],
     })
     async setHost(model: PkiAdminApiTypes.SetHostModel): Promise<types.pki.InstanceId> {
         return this.hostIdentityService.setHost(model.hostPubKey, model.hostUrl);
-    } 
-
+    }
+    
     @ApiMethod({
         scope: "ignore",
         errorCodes: ["CANNOT_ADD_URL_TO_THE_HOST"],
@@ -65,8 +65,8 @@ export class PkiAdminApi extends BaseApi implements IPkiAdminApi {
     async addHostUrl(model: PkiAdminApiTypes.AddHostUrlModel): Promise<types.core.OK> {
         await this.hostIdentityService.addHostUrl(model.instanceId, model.hostUrl);
         return "OK";
-    } 
-
+    }
+    
     @ApiMethod({
         scope: "ignore",
         errorCodes: ["NO_HOST_BY_GIVEN_INSTANCE_ID", "HOST_URL_DOES_NOT_EXIST"],
@@ -74,8 +74,8 @@ export class PkiAdminApi extends BaseApi implements IPkiAdminApi {
     async removeHostUrl(model: PkiAdminApiTypes.RemoveHostUrlModel): Promise<types.core.OK> {
         await this.hostIdentityService.removeHostUrl(model.instanceId, model.hostUrl);
         return "OK";
-    } 
-
+    }
+    
     @ApiMethod({
         scope: "ignore",
         errorCodes: ["NO_HOST_BY_GIVEN_INSTANCE_ID"],
@@ -83,13 +83,13 @@ export class PkiAdminApi extends BaseApi implements IPkiAdminApi {
     async deleteHost(model: PkiAdminApiTypes.DeleteHostModel): Promise<types.core.OK> {
         await this.hostIdentityService.deleteHost(model.instanceId);
         return "OK";
-    } 
-
+    }
+    
     @ApiMethod({
-        scope: "ignore"
+        scope: "ignore",
     })
     async listHosts(): Promise<HostIdentity[]> {
         return this.hostIdentityService.listHosts();
-    } 
-
+    }
+    
 }

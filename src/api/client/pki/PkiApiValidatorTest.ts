@@ -33,16 +33,16 @@ export const test = testApi("client", "pki/", PkiApi, new PkiApiValidator(), cal
     call("verifyKey", api => api.verifyKey({
         userId, instanceId, contextId, userPubKey, date: Date.now(),
     })).setResult(true);
-
+    
     call("verifyHostById", api => api.verifyHostById({
-        instanceId, hostUrl: hostUrl
+        instanceId, hostUrl: hostUrl,
     })).setResult(true);
-
+    
     call("verifyHostByPub", api => api.verifyHostByPub({
-        hostPubKey, hostUrl: hostUrl
+        hostPubKey, hostUrl: hostUrl,
     })).setResult(true);
-
+    
     call("getHost", api => api.getHost({
-        instanceId, hostUrl: hostUrl
+        instanceId, hostUrl: hostUrl,
     })).setResult({instanceId, hostPubKey, addresses: [hostUrl]});
 });

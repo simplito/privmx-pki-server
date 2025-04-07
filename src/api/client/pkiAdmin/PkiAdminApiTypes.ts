@@ -44,34 +44,33 @@ export interface IPkiAdminApi {
      */
     deleteKey(model: DeleteKeyModel): Promise<types.core.OK>;
     
-
     /**
      * Creates host's identity in PKI
      * @param hostPubKey
      * @param hostUrl
      */
     setHost(model: SetHostModel): Promise<types.pki.InstanceId>;
-
+    
     /**
      * Add host's URL
      * @param instanceId
      * @param hostUrl
      */
     addHostUrl(model: AddHostUrlModel): Promise<types.core.OK>;
-
+    
     /**
      * Remove host's URL
      * @param instanceId
      * @param hostUrl
      */
     removeHostUrl(model: RemoveHostUrlModel): Promise<types.core.OK>;
-
+    
     /**
      * Delete host from PKI
      * @param instanceId
      */
     deleteHost(model: DeleteHostModel): Promise<types.core.OK>;
-
+    
     /**
      * List hosts
      */

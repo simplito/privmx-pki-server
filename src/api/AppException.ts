@@ -87,7 +87,7 @@ export const API_ERROR_CODES = {
     "CANNOT_FIND_HOST_BY_GIVEN_FILTER"       : {code: 0x0057, message: "Cannot find host by given filter.", description: "Cannot find the host identity by the given filter."},
     "URL_ALREADY_RESERVED_FOR_OTHER_HOST"    : {code: 0x0058, message: "Given URL already reserved for other host.", description: "There is already a HostIdentity with the given URL associated to it."},
     "HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS" : {code: 0x0059, message: "Host Identity with the given public key already exists.", description: "There is already a Host Identity with the given public key."},
-
+    
 };
 
 export const ERROR_CODES: {[name: string]: {code: number, message: string, description: string}} = <any>API_ERROR_CODES;

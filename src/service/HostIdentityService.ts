@@ -23,13 +23,13 @@ export class HostIdentityService {
         const result = await this.hostIdentityRepository.addHostUrl(instanceId, hostUrl);
         if (!result) {
             throw new AppException("CANNOT_ADD_URL_TO_THE_HOST");
-        }      
+        }
     }
     
     async removeHostUrl(instanceId: types.pki.InstanceId, hostUrl: types.pki.HostUrl): Promise<void> {
         await this.hostIdentityRepository.removeHostUrl(instanceId, hostUrl);
     }
-
+    
     async deleteHost(instanceId: types.pki.InstanceId): Promise<void> {
         await this.hostIdentityRepository.deleteHost(instanceId);
     }
@@ -37,11 +37,11 @@ export class HostIdentityService {
     async verifyHostBy(model: {hostUrl: types.pki.HostUrl, instanceId?: types.pki.InstanceId, hostPubKey?: string} ): Promise<boolean> {
         return this.hostIdentityRepository.verifyHostBy(model);
     }
-
+    
     async listHosts(): Promise<HostIdentity[]> {
         return (await this.hostIdentityRepository.listHosts()) || [];
     }
-
+    
     async getHost(filter: HostIdentityFilter): Promise<HostIdentity> {
         const result = await this.hostIdentityRepository.getHost(filter);
         if (!result) {
@@ -49,6 +49,5 @@ export class HostIdentityService {
         }
         return result;
     }
-
     
 }

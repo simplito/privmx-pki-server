@@ -5,10 +5,10 @@ import * as types from "../types";
 import { AppException } from "../api/AppException";
 import { HostIdentity, HostIdentityFilter } from "../api/client/pki/PkiApiTypes";
 
-
 interface FilterAsQuery {
     instanceId?: types.pki.InstanceId;
-    addresses?: types.pki.HostUrl
+    addresses?: types.pki.HostUrl;
+    hostPubKey?: string;
 }
 export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord> {
     
@@ -34,7 +34,7 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         const itemCreateDate = Date.now();
         const newItem: db.HostIdentityRecord = {
             _id: this.generateId(), createDate: itemCreateDate,
-            instanceId, hostPubKey, addresses: [hostUrl] as types.pki.HostUrl[]
+            instanceId, hostPubKey, addresses: [hostUrl] as types.pki.HostUrl[],
         };
         const result = await this.insert(newItem);
         return result.insertedId;
@@ -58,7 +58,7 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         if (urlExists) {
             throw new AppException("URL_ALREADY_RESERVED_FOR_OTHER_HOST");
         }
-
+        
         hostIdentity.addresses.push(url);
         return this.getCollection().replaceOne({_id: hostIdentity._id}, hostIdentity, {upsert: true});
     }
@@ -93,48 +93,48 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         }
         await this.getCollection().deleteOne(query);
     }
-
+    
     /**
      * Verifies host
      * @param model
      */
     async verifyHostBy(model: {hostUrl: types.pki.HostUrl, instanceId?: types.pki.InstanceId, hostPubKey?: string}) {
-        let query: any = {addresses: model.hostUrl};
+        const query: FilterAsQuery = {addresses: model.hostUrl};
         if (model.instanceId) {
             query.instanceId = model.instanceId;
         }
         if (model.hostPubKey) {
-            query.hostPubKey = model.hostPubKey
+            query.hostPubKey = model.hostPubKey;
         }
         const result = await this.getCollection().find(query).sort({createDate: -1}).limit(1).toArray();
         return result.length > 0;
     }
-
+    
     /**
      * Gets host by given filter
-     * @param filter 
+     * @param filter
      */
     async getHost(filter: HostIdentityFilter) {
-        let query: FilterAsQuery = {};
+        const query: FilterAsQuery = {};
         if (filter.hostUrl) {
             query.addresses = filter.hostUrl;
         }
         if (filter.instanceId) {
             query.instanceId = filter.instanceId;
         }
-        const result = await this.getCollection().findOne(query, {sort: {createDate: -1}})
+        const result = await this.getCollection().findOne(query, {sort: {createDate: -1}});
         return this.convertSingle(result);
     }
-
+    
     async listHosts() {
         return this.convertMany(await this.getAll());
     }
-
+    
     private async hasUrl(url: types.pki.HostUrl): Promise<boolean> {
         const result = await this.getCollection().find({addresses: url}).toArray();
         return result.length > 0;
     }
-
+    
     private recordToEntry(record: db.HostIdentityRecord): HostIdentity {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const {_id, createDate, ...rest} = record;
@@ -154,5 +154,5 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         }
         return this.recordToEntry(fromDB);
     }
-
+    
 }

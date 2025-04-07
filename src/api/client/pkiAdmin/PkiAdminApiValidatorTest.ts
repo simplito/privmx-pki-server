@@ -18,22 +18,22 @@ export const test = testApi("client", "pkiadmin/", PkiAdminApi, new PkiAdminApiV
     call("deleteKey", api => api.deleteKey({
         userId, instanceId, contextId,
     })).setResult("OK");
-
+    
     call("setHost", api => api.setHost({
-        hostPubKey, hostUrl
+        hostPubKey, hostUrl,
     })).setResult(instanceId);
-
+    
     call("addHostUrl", api => api.addHostUrl({
-        instanceId, hostUrl
+        instanceId, hostUrl,
     })).setResult("OK");
-
+    
     call("removeHostUrl", api => api.removeHostUrl({
-        instanceId, hostUrl
+        instanceId, hostUrl,
     })).setResult("OK");
-
+    
     call("deleteHost", api => api.deleteHost({
-        instanceId
+        instanceId,
     })).setResult("OK");
-
+    
     call("listHosts", api => api.listHosts());
 });

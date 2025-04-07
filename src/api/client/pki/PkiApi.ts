@@ -10,7 +10,7 @@ export class PkiApi extends BaseApi implements PkiApiTypes.IPkiApi {
     
     constructor(
         private userIdentityService: UserIdentityService,
-        private hostIdentityService: HostIdentityService
+        private hostIdentityService: HostIdentityService,
         // private authorizationHolder: AuthorizationHolder,
     ) {
         super(new PkiApiValidator());
@@ -43,9 +43,9 @@ export class PkiApi extends BaseApi implements PkiApiTypes.IPkiApi {
         }
         return result;
     }
-
+    
     @ApiMethod({
-        scope: ["read"]
+        scope: ["read"],
     })
     async getKeyHistory(model: PkiApiTypes.GetKeyHistoryModel): Promise<PkiApiTypes.UserIdentity[]> {
         return this.userIdentityService.getKeyHistory(model.userId, model.instanceId, model.contextId);
@@ -62,21 +62,21 @@ export class PkiApi extends BaseApi implements PkiApiTypes.IPkiApi {
         }
         return this.userIdentityService.verifyKey(model.userId, model.userPubKey, model.instanceId, model.contextId, model.date);
     }
-
+    
     @ApiMethod({
-        scope: ["read"]
+        scope: ["read"],
     })
     async verifyHostById(model: PkiApiTypes.VerifyHostByIdModel): Promise<boolean> {
         return this.hostIdentityService.verifyHostBy(model);
     }
-
+    
     @ApiMethod({
-        scope: ["read"]
+        scope: ["read"],
     })
     async verifyHostByPub(model: PkiApiTypes.VerifyHostByPubModel): Promise<boolean> {
         return this.hostIdentityService.verifyHostBy(model);
     }
-
+    
     @ApiMethod({
         scope: ["read"],
         errorCodes: ["CANNOT_FIND_HOST_BY_GIVEN_FILTER"],
@@ -84,5 +84,5 @@ export class PkiApi extends BaseApi implements PkiApiTypes.IPkiApi {
     async getHost(model: PkiApiTypes.GetHostModel): Promise<PkiApiTypes.HostIdentity> {
         return this.hostIdentityService.getHost(model);
     }
-
+    
 }

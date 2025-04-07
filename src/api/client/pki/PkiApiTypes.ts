@@ -82,7 +82,7 @@ export interface IPkiApi {
      * @param date
      */
    verifyKey(model: VerifyKeyModel): Promise<boolean>;
-
+    
     /**
      * Verifies the HostIdentity by the given instanceId and hostUrl.
      * @param instanceId
@@ -90,7 +90,7 @@ export interface IPkiApi {
      * @param addresses
      */
     verifyHostById(model: VerifyHostByIdModel): Promise<boolean>;
- 
+   
    /**
      * Verifies the HostIdentity by the given instanceId and hostUrl.
      * @param instanceId

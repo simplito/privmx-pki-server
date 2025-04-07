@@ -19,23 +19,23 @@ export class PkiAdminApiClient implements PkiAdminApiTypes.IPkiAdminApi {
     deleteKey(model: PkiAdminApiTypes.DeleteKeyModel): Promise<types.core.OK> {
         return this.request("deleteKey", model);
     }
-
+    
     setHost(model: PkiAdminApiTypes.SetHostModel): Promise<types.pki.InstanceId> {
         return this.request("setHost", model);
     }
-
+    
     addHostUrl(model: PkiAdminApiTypes.AddHostUrlModel): Promise<types.core.OK> {
         return this.request("addHostUrl", model);
     }
-
+    
     removeHostUrl(model: PkiAdminApiTypes.RemoveHostUrlModel): Promise<types.core.OK> {
         return this.request("removeHostUrl", model);
     }
-
+    
     deleteHost(model: PkiAdminApiTypes.DeleteHostModel): Promise<types.core.OK> {
         return this.request("deleteHost", model);
     }
-
+    
     listHosts(): Promise<HostIdentity[]> {
         return this.request("listHosts", {});
     }

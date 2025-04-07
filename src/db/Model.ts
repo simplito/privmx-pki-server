@@ -182,5 +182,3 @@ export interface HostIdentityRecord {
     createDate: number;
 }
 
-
-

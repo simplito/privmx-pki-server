@@ -17,7 +17,7 @@ export class UserIdentityService {
         const result = await this.userIdentityRepository.deleteKey(userId, instanceId, contextId);
         if (!result) {
             throw new AppException("NO_KEY_FOR_USER");
-        }      
+        }
     }
     
     async getCurrentKey(userId: string, instanceId: types.pki.InstanceId, contextId: string): Promise<UserIdentity|null> {
