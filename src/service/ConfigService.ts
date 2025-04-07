@@ -94,8 +94,8 @@ export class ConfigService {
             publicDir,
             mailBlackWhiteListDir,
             db: {
-                url: process.env.PMX_MONGO_URL || "mongodb://localhost:27017?directConnection=true",
-                dbName: process.env.PMX_MONGO_DB || "pmx_json_rpc_template_server_db",
+                url: process.env.PMX_MONGO_URL || "mongodb://:27017",
+                dbName: process.env.PMX_MONGO_DB || "privmx_pki_server_db",
             },
             cors: {
                 enabled: process.env.PMX_CORS_ENABLED === "true",
