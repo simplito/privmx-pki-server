@@ -26,21 +26,25 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
     async setHost(instanceId: types.pki.InstanceId, hostPubKey: string, hostUrl: types.pki.HostUrl) {
         const itemCreateDate = Date.now();
         const newItem: db.HostIdentityRecord = {
+            _id: this.generateId(),
             createDate: itemCreateDate,
             instanceId, hostPubKey, addresses: [hostUrl] as types.pki.HostUrl[],
         };
         try {
             const result = await this.insert(newItem);
             return result.insertedId;    
-        } catch (e: any) {
-            if (e.code === 11000 && e.keyValue && e.keyValue.hostPubKey) {
+        } 
+        catch (e) {
+            if (this.isMongoDuplicationError(e, "hostPubKey")) {
                 throw new AppException("HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS");
             }
             else
-            if (e.code === 11000 && e.keyValue && e.keyValue.addresses) {
+            if (this.isMongoDuplicationError(e, "addresses")) {
                 throw new AppException("URL_ALREADY_RESERVED");
             }
-            else throw new AppException("CANNOT_ADD_HOST");
+            else {
+                throw e;
+            };
         }
     }
     
@@ -56,15 +60,16 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
             if (result.matchedCount > 0 && result.modifiedCount === 0) {
                 throw new Error("exists");
             }
-        } catch (e: any) {
-            if (e.code === 11000 && e.keyValue && e.keyValue.addresses) {
+        } 
+        catch (e) {
+            if (this.isMongoDuplicationError(e, "addresses")) {
                 throw new AppException("URL_ALREADY_RESERVED");
             }
-            if (e.message === "exists") {
+            if (this.isCustomExistsError(e)) {
                 throw new AppException("HOST_URL_ALREADY_EXISTS");
             }
             else {
-                throw new AppException("CANNOT_ADD_URL_TO_THE_HOST");
+                throw e;
             }
         }
     }
@@ -148,5 +153,12 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         }
         return this.recordToEntry(fromDB);
     }
+
+    private isMongoDuplicationError(e: unknown, field: string): boolean {
+        return (e !== null && typeof(e) === "object") && "code" in e && e.code === 1100 && "keyValue" in e && e.keyValue !== null && typeof(e.keyValue) === "object" && field in e.keyValue;
+    }
     
+    private isCustomExistsError(e: unknown): boolean {
+        return (e !== null && typeof(e) === "object") && "message" in e && e.message === "exists";
+    }
 }
