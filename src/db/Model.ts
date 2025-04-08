@@ -175,7 +175,7 @@ export interface UserIdentityRecord {
 }
 
 export interface HostIdentityRecord {
-    _id?: ObjectId;
+    _id: ObjectId;
     instanceId: types.pki.InstanceId;
     hostPubKey: string;
     addresses: types.pki.HostUrl[];
