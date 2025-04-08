@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import * as types from "../types";
 import { SrpGroupName } from "privmx-srp";
+import { ApiUserId } from "../types/auth";
 
 export type Searchable = string;
 export type Ouath2TokenId = string&{__ouath2TokenId: never};
@@ -180,5 +181,12 @@ export interface HostIdentityRecord {
     hostPubKey: string;
     addresses: types.pki.HostUrl[];
     createDate: number;
+}
+
+export interface ApiUserRecord {
+    _id: ObjectId;
+    id: ApiUserId;
+    created: types.core.Timestamp;
+    enabled: boolean;
 }
 

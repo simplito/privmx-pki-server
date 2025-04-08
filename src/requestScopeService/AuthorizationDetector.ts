@@ -133,7 +133,14 @@ export class AuthorizationDetector {
             return await this.parseTokenAndTryAuthorizeAsGivenToken(auth.data as types.core.AccessToken);
         }
         else if (auth.method === "Basic") {
-            return await this.tryAuthorizeAsApiKeyWithClientCredentials(auth.data);
+            const ret = await this.tryAuthorizeAsApiKeyWithClientCredentials(auth.data);
+            if (ret === false) {
+                console.log("new auth")
+                const ret2 = await this.basicAuthorization(auth.data);
+                console.log("ret2", ret2);
+                return ret2;
+            }
+            return ret;
         }
         else if (auth.method === RequestSignature.PMX_HMAC_SHA256) {
             return await this.tryAuthorizeAsApiKeyWithSignature(auth.data);
@@ -177,18 +184,22 @@ export class AuthorizationDetector {
     }
     
     private async tryAuthorizeAsApiKeyWithClientCredentials(encodedClient: string) {
+        console.log(1);
         const credentials = HttpUtils.parseHttpBasicDataAsClientCredentials(encodedClient);
         if (!credentials || !credentials.clientId || !credentials.clientSecret) {
             return false;
         }
         
         const {user, apikey} = await this.apiKeyRepository.getApiKeyAndUser(credentials.clientId);
+        console.log(2, JSON.stringify({user, apikey}));
         if (!apikey || !apikey.enabled || apikey.publicKey || apikey.clientSecret !== credentials.clientSecret) {
             return false;
         }
+        console.log(3);
         if (!user || user.blocked || !user.activated) {
             return false;
         }
+        console.log(4);
         this.authorizationHolder.authorizeAsApiKey(apikey.maxScope, apikey.user, apikey._id);
         return true;
     }
@@ -203,5 +214,41 @@ export class AuthorizationDetector {
             this.responseHeadersHolder.setSecureCookie("agentId", id);
             this.authorizationHolder.setAgentId(id as types.core.AgentId);
         }
+    }
+
+
+
+    private async basicAuthorization(httpBasic: string) {
+        const credentials = this.parseHttpBasic(httpBasic);
+        if (!credentials) {
+            console.log(1.1)
+            return;
+        }
+        const apiKey = await this.apiKeyRepository.get(credentials.apiKeyId);
+        console.log("credentials", credentials, "apiKey", apiKey);
+        if (!apiKey || !apiKey.enabled || apiKey.publicKey || apiKey.clientSecret !== credentials.apiKeySecret) {
+            console.log(1.2)
+            return;
+        }
+        const user = await this.userRepository.get(apiKey.user);
+        if (!user || !user.activated) {
+            console.log(1.3)
+            return;
+        }
+        this.authorizationHolder.authorizeAsApiKey(apiKey.maxScope, apiKey.user, apiKey._id);
+        return true;
+    }
+    
+    private parseHttpBasic(httpBasic: string) {
+        const credentials = Utils.try(() => atob(httpBasic));
+        if (credentials.success === false) {
+            return null;
+        }
+        const values = credentials.result.split(":");
+        if (values.length !== 2) {
+            return null;
+        }
+        const [apiKeyId, apiKeySecret] = values;
+        return {apiKeyId: apiKeyId as types.auth.ClientId, apiKeySecret: apiKeySecret as types.auth.ClientSecret};
     }
 }

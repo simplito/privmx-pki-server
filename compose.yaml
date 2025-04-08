@@ -1,27 +1,26 @@
-version: "3"
-
-networks:
-  app-tier:
-    driver: bridge
-
 services:
-  fakemail:
-    image: 'mailhog/mailhog'
-    networks:
-      - app-tier
   mongodb:
-    image: 'dev.privmx.com:5050/cloud/cloud-server/mongo-with-rs:7'
-    networks:
-      - app-tier
+    image: mongo:7.0
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongodb:27017'}]}) }" | mongosh --port 27017 --quiet
+      start_period: 10s
+      start_interval: 1s
+    volumes:
+      - './volumes/mongo/db:/data/db'
+      - './volumes/mongo/configdb:/data/configdb'
+
   server:
     image: 'node:22'
-    networks:
-      - app-tier
+    environment:
+      - PMX_HOST=0.0.0.0
+      - PMX_MONGO_URL=mongodb://mongodb/
+      - PMX_CORS_ENABLED=true
+
     volumes:
       - './:/app'
     ports:
       - "8101:8101"
     depends_on:
-      - fakemail
       - mongodb
-    command: sh -c "cd /app && npm run e2e-tests"
+    command: sh -c "cd /app && npm start"
