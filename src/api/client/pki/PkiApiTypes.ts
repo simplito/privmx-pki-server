@@ -1,5 +1,6 @@
+import * as types from "../../../types";
 export interface UserIdentity {
-    host: string;
+    instanceId: types.pki.InstanceId;
     contextId: string;
     userId: string;
     userPubKey?: string;
@@ -7,21 +8,43 @@ export interface UserIdentity {
     customData?: any;
 }
 
+export interface HostIdentity {
+    instanceId: types.pki.InstanceId;
+    hostPubKey: string;
+    addresses: types.pki.HostUrl[];
+}
+
+export interface HostIdentityFilter {
+    instanceId?: types.pki.InstanceId;
+    hostUrl?: types.pki.HostUrl;
+};
+
 export interface GetCurrentKeyModel {
-    userId: string, host: string, contextId: string
+    userId: string, instanceId: types.pki.InstanceId, contextId: string
 }
 
 export interface GetKeyAtModel {
-    userId: string, host: string, contextId: string, date: number
+    userId: string, instanceId: types.pki.InstanceId, contextId: string, date: number
 }
 
 export interface GetKeyHistoryModel {
-    userId: string, host: string, contextId: string
+    userId: string, instanceId: types.pki.InstanceId, contextId: string
 }
 
 export interface VerifyKeyModel {
-    userId: string, host: string, contextId: string, userPubKey: string, date: number
+    userId: string, instanceId: types.pki.InstanceId, contextId: string, userPubKey: string, date: number
 }
+
+export interface VerifyHostByIdModel {
+    instanceId: types.pki.InstanceId;
+    hostUrl: types.pki.HostUrl;
+}
+export interface VerifyHostByPubModel {
+    hostPubKey: string;
+    hostUrl: types.pki.HostUrl;
+}
+
+export type GetHostModel = HostIdentityFilter;
 
 export interface IPkiApi {
     
@@ -59,5 +82,29 @@ export interface IPkiApi {
      * @param date
      */
    verifyKey(model: VerifyKeyModel): Promise<boolean>;
+    
+    /**
+     * Verifies the HostIdentity by the given instanceId and hostUrl.
+     * @param instanceId
+     * @param hostPubKey
+     * @param addresses
+     */
+    verifyHostById(model: VerifyHostByIdModel): Promise<boolean>;
+   
+   /**
+     * Verifies the HostIdentity by the given instanceId and hostUrl.
+     * @param instanceId
+     * @param hostPubKey
+     * @param addresses
+     */
+    verifyHostByPub(model: VerifyHostByPubModel): Promise<boolean>;
+    
+    /**
+     * Gets the HostIdentity by the given filter.
+     * @param instanceId
+     * @param hostPubKey
+     * @param addresses
+     */
+    getHost(model: GetHostModel): Promise<HostIdentity>;
     
 }

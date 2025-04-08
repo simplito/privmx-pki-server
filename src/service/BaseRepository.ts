@@ -14,7 +14,7 @@ export interface ListWithOptionalSortBy extends types.core.ListModel {
 }
 
 /* @ignore-next-line-reference */
-export class BaseRepository<T extends {_id: any}, K = T["_id"]> {
+export class BaseRepository<T extends {_id?: any}, K = T["_id"]> {
     
     constructor(
         protected dbManager: MongoDbManager,

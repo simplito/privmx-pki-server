@@ -17,6 +17,10 @@ export class Migration000Scheme {
         
         const {collection: apiKeyCollection} = await mongoDbManager.createOrGetCollection("api_key");
         await apiKeyCollection.createIndex({user: 1});
+
+        const {collection: hostIdentityCollection} = await mongoDbManager.createOrGetCollection("hostidentity");
+        await hostIdentityCollection.createIndex({hostPubKey: 1}, {unique: true});
+        await hostIdentityCollection.createIndex({addresses: 1}, {unique: true});
         
         await mongoDbManager.createOrGetCollection("token");
         
