@@ -34,7 +34,7 @@ export class Container extends IOC implements VerifableIOC {
     private constructor() {
         super();
     }
-
+    
     static setup() {
         const container = new Container();
         Scanner.registerToIoc(container, path.resolve(__dirname, "../service/"));
@@ -61,12 +61,11 @@ export class Container extends IOC implements VerifableIOC {
         // container.registerSecondFactorProviderList();
         return container;
     }
-
-
+    
     static async init({worker, ipcServicesDescriptors}: {worker: cluster.Worker, ipcServicesDescriptors?: IpcServiceDescriptor[]}) {
         const container = this.setup();
         const ipcMessageProcessor = container.getIpcMessageProcessor();
-        container.registerValue("worker", worker);      
+        container.registerValue("worker", worker);
         worker.on("message", message => {
             void ipcMessageProcessor.processMessage(message, "master", worker);
         });

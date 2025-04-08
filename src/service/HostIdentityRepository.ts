@@ -32,8 +32,8 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         };
         try {
             const result = await this.insert(newItem);
-            return result.insertedId;    
-        } 
+            return result.insertedId;
+        }
         catch (e) {
             if (this.isMongoDuplicationError(e, "hostPubKey")) {
                 throw new AppException("HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS");
@@ -55,12 +55,12 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      */
     async addHostUrl(instanceId: types.pki.InstanceId, url: types.pki.HostUrl) {
         try {
-            const result = await this.getCollection().updateOne({instanceId: instanceId}, 
+            const result = await this.getCollection().updateOne({instanceId: instanceId},
                 {$addToSet: {addresses: url}});
             if (result.matchedCount > 0 && result.modifiedCount === 0) {
                 throw new Error("exists");
             }
-        } 
+        }
         catch (e) {
             if (this.isMongoDuplicationError(e, "addresses")) {
                 throw new AppException("URL_ALREADY_RESERVED");
@@ -80,7 +80,7 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      * @param url
      */
     async removeHostUrl(instanceId: types.pki.InstanceId, url: types.pki.HostUrl) {
-        const result = await this.getCollection().updateOne({instanceId: instanceId}, 
+        const result = await this.getCollection().updateOne({instanceId: instanceId},
             {$pull: {addresses: url}});
         if (result.modifiedCount === 0) {
             throw new AppException("CANNOT_REMOVE_URL_FROM_THE_HOST");
@@ -92,7 +92,7 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
      * @param instanceId
      */
     async deleteHost(instanceId: types.pki.InstanceId) {
-        const result = await this.getCollection().deleteOne({instanceId: instanceId})
+        const result = await this.getCollection().deleteOne({instanceId: instanceId});
         if (result.deletedCount === 0) {
             throw new AppException("NO_HOST_BY_GIVEN_INSTANCE_ID");
         }
@@ -153,7 +153,7 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
         }
         return this.recordToEntry(fromDB);
     }
-
+    
     private isMongoDuplicationError(e: unknown, field: string): boolean {
         return (e !== null && typeof(e) === "object") && "code" in e && e.code === 1100 && "keyValue" in e && e.keyValue !== null && typeof(e.keyValue) === "object" && field in e.keyValue;
     }

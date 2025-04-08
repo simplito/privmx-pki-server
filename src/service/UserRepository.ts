@@ -24,9 +24,9 @@ export class UserRepository extends BaseRepository<db.User> {
         await this.insert(user, session);
         return user;
     }
-        
+    
     /* @ignore-next-line-reference */
     async updateEnabled(id: types.user.UserId, enabled: boolean) {
         await this.getCollection().updateOne({_id: id}, {$set: {enabled: enabled}});
-    }    
+    }
 }

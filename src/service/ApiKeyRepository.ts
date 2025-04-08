@@ -31,7 +31,7 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
         await this.insert(apiKey);
         return apiKey;
     }
-
+    
     async addApiKey(model: {maxScope: types.core.Scope[], userId: types.user.UserId, clientSecret: types.auth.ClientSecret, name: types.auth.ApiKeyName, pubKey?: types.core.PubKey}) {
         const apiKey: db.ApiKey = {
             _id: this.generateId(),
@@ -100,7 +100,7 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
         const {users, ...apiKey} = ele;
         return {apikey: apiKey, user: users[0]};
     }
-
+    
     private generateSecret() {
         return Crypto.randomBytes(16).toString("hex") as types.auth.ClientSecret;
     }

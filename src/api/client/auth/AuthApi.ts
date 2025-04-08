@@ -8,13 +8,12 @@ import { Utils } from "../../../utils/Utils";
 import * as authApi from "./AuthApiTypes";
 import { AuthorizationHolder } from "../../../requestScopeService/AuthorizationHolder";
 
-
 export class AuthApi extends BaseApi implements authApi.IAuthApi {
     
     constructor(
         private authorizationService: AuthorizationService,
         private authorizationHolder: AuthorizationHolder,
-
+        
     ) {
         super(new AuthApiValidator());
     }
@@ -24,7 +23,7 @@ export class AuthApi extends BaseApi implements authApi.IAuthApi {
         await this.authorizationService.bindAccessToken(model.accessToken);
         return "OK";
     }
-        
+    
     @ApiMethod({
         errorCodes: ["INSUFFICIENT_SCOPE", "INVALID_CREDENTIALS", "INVALID_USER_OR_PASSWORD", "ACCOUNT_NOT_ACTIVATED_YET", "ACCOUNT_DISABLED", "API_KEY_DOES_NOT_EXIST", "TOKEN_EXPIRED", "INVALID_TOKEN"],
         additionalCost: 100,

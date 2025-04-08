@@ -167,7 +167,7 @@ export interface ConfirmDisablingOfSecondFactorModel  {
 }
 
 export interface IUserApi {
-        
+    
     /**
     * Adds new ApiKey (up to limit of 10)
     * @param model ApiKey name, scope and secret or public key
@@ -200,5 +200,5 @@ export interface IUserApi {
     * lists all ApiKeys
     * @returns list of ApiKeys
     */
-    listApiKeys(): Promise<ListApiKeysResult>;    
+    listApiKeys(): Promise<ListApiKeysResult>;
 }

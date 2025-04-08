@@ -6,6 +6,8 @@ import * as types from "../types";
 import { UserService } from "../service/UserService";
 import { Scope } from "../types/core";
 import { UserRepository } from "../service/UserRepository";
+import { ApiKey } from "../db/Model";
+import { api } from "privmx-bridge-multiinstance-plugin-api";
 const workerLogger = new Logger("Worker");
 
 async function go() {
@@ -16,17 +18,31 @@ async function go() {
     configService.loadConfig();
     
     container.registerValue("workerBroadcastService", {});
-
+    
     // Connect to db
     container.registerMongoDbManager(await MongoDbManager.init(configService.values.db));
     
     const convertedScope = container.resolve<UserService>("userService").convertScope(["read" as Scope], "disabled");
-    const user = await container.resolve<UserRepository>("userRepository").create(true);
-    const apiKey = await container.resolve<ApiKeyRepository>("apiKeyRepository").create(user._id as types.user.UserId, "MainKey" as types.auth.ApiKeyName, convertedScope.scope, undefined);
+    const userRepository = container.resolve<UserRepository>("userRepository");
+    const apiKeyRepository = container.resolve<ApiKeyRepository>("apiKeyRepository");
+    
+    const availUsers = await userRepository.getAll();
+    if (availUsers.length > 0) {
+        const user = (await userRepository.getAll())[0];
+        const apiKey = (await apiKeyRepository.getAllUserApiKeys(user._id))[0];
+        printKeys(apiKey);
+    }
+    else {
+        const user = await userRepository.create(true);
+        const apiKey = await apiKeyRepository.create(user._id as types.user.UserId, "MainKey" as types.auth.ApiKeyName, convertedScope.scope, undefined);
+        printKeys(apiKey);  
+    }
+    await container.resolve<MongoDbManager>("dbManager").close();
+}
+
+function printKeys(apiKey: ApiKey) {
     console.log(`API_KEY_ID=${apiKey._id}`);
     console.log(`API_KEY_SECRET=${apiKey.clientSecret}`);
-    
-    await container.resolve<MongoDbManager>("dbManager").close();
 }
 
 go().catch(e => {

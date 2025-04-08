@@ -213,7 +213,7 @@ export interface IAuthApi {
     * @returns accessToken, refreshToken, expirationTime, scope and sessionName(optional)
     */
     token(model: TokenModel, challenge: types.auth.ChallengeModel|undefined): Promise<TokenResult>;
-        
+    
     /**
     * Bind Access Token to websocket, request will be executed with the given Token rights.
     * @param model Access Token

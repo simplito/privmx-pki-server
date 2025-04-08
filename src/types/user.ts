@@ -1,4 +1,3 @@
-
 export type UserId = string&{__userId: never};
 export type Username = string&{__userName: never};
 export type SecondFactorSecret = string&{__secondFactorCode: never};
@@ -11,5 +10,5 @@ export interface User {
     id: UserId;
     /** whether user is enabled */
     enabled: boolean;
-
+    
 }

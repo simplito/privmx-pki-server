@@ -68,7 +68,6 @@ export class UserApi extends BaseApi implements userApi.IUserApi {
         scope: "ignore",
     })
     async listApiKeys(): Promise<userApi.ListApiKeysResult> {
-        console.log("userId from authHolder: ", this.authorizationHolder.getUserId());
         const keys = await this.apiKeyRepository.getAllUserApiKeys(this.authorizationHolder.getUserId());
         return {list: keys.map(apiKey => this.apiKeyConverter.convertApiKeyToRecord(apiKey))};
     }

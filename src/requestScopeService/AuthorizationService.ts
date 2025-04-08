@@ -37,7 +37,6 @@ export class AuthorizationService {
     ) {
     }
     
-    
     async getAccessTokenFromClientCredentials(_requestParamsHash: string, clientId: types.auth.ClientId, clientSecret: types.auth.ClientSecret, scope: types.core.Scope[], _deviceId: types.core.AgentId|undefined, _challengeModel: types.auth.ChallengeModel|undefined) {
         const {apikey, user} = await this.apiKeyRepository.getApiKeyAndUser(clientId);
         if (!user) {
@@ -165,7 +164,6 @@ export class AuthorizationService {
         this.webSocketInfo.authorization = decodedToken;
     }
     
-    
     private async createTokenSession(tokenInfo: db.TokenSessionInfo, user: db.User, sessionName: types.auth.SessionName|undefined) {
         void this.ipRateLimiterService.resetLoginCountForThisIp(user._id);
         const pastSessions = await this.sessionRepository.getUserSessionsSortedByCreateDate(user._id);
@@ -181,8 +179,6 @@ export class AuthorizationService {
         await this.eventRepository.registerNewEvent(eventData);
         return session;
     }
-    
-    
     
     private async isValidClientSignature(apiKey: db.ApiKey, timestamp: types.core.Timestamp, nonce: string, signature: types.core.Base64, data?: string) {
         return this.signatureVerificationService.verify({
@@ -270,5 +266,5 @@ export class AuthorizationService {
             }
         }
         return {tokenInfo, user: dev, apikey: client};
-    }    
+    }
 }

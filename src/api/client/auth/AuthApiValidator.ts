@@ -25,7 +25,7 @@ export class AuthApiValidator extends ApiValidator {
                 data: this.builder.optional(this.builder.maxLength(this.builder.string, 512)),
             }),
         ]));
-                
+        
         this.registerMethod("bindAccessToken", this.builder.createObject({
             accessToken: this.oauth2Token,
         }));
@@ -33,6 +33,6 @@ export class AuthApiValidator extends ApiValidator {
         this.registerMethod("forkToken", this.builder.createObject({
             refreshToken: this.oauth2Token,
             sessionName: this.sessionName,
-        }));        
+        }));
     }
 }

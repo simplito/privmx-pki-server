@@ -44,5 +44,5 @@ export const test = testApi("client", "user/", UserApi, new UserApiValidator(), 
         name: "new name" as types.auth.ApiKeyName,
         enabled: true,
         maxScope: ["profile"] as types.core.Scope[],
-    })).setResult("OK");    
+    })).setResult("OK");
 });
