@@ -8,9 +8,6 @@ import { MongoDbManager } from "../db/MongoDbManager";
 import { Logger } from "../utils/Logger";
 import { ApiResolver, Executor } from "../api/ApiResolver";
 import { AuthApi } from "../api/client/auth/AuthApi";
-import { EmailSecondFactorService } from "../service/EmailSecondFactorService";
-import { SecondFactorServiceType, ISecondFactorService } from "../service/SecondFactorProvider";
-import { TotpSecondFactorService } from "../service/TotpSecondFactorService";
 import * as cluster from "cluster";
 import { DeferredMap } from "../cluster/common/DeferredMap";
 import { IpcExecutor } from "../cluster/common/IpcExecutor";
@@ -61,7 +58,7 @@ export class Container extends IOC implements VerifableIOC {
         container.registerWithName("mailSender", NodeMailerMailSender);
         container.registerValue("container", container);
         container.registerIpcServices();
-        container.registerSecondFactorProviderList();
+        // container.registerSecondFactorProviderList();
         return container;
     }
 
@@ -115,19 +112,6 @@ export class Container extends IOC implements VerifableIOC {
     
     getListOfRegisteredServices() {
         return Object.keys(this.map);
-    }
-    
-    private registerSecondFactorProviderList() {
-        let secondFactorProviderList: Map<SecondFactorServiceType, ISecondFactorService>|null = null;
-        this.registerFactory("secondFactorProviderList", () => {
-            if (!secondFactorProviderList) {
-                secondFactorProviderList = new Map<SecondFactorServiceType, ISecondFactorService>([
-                    ["email", this.resolve<EmailSecondFactorService>("emailSecondFactorService")],
-                    ["totp", this.resolve<TotpSecondFactorService>("totpSecondFactorService")],
-                ]);
-            }
-            return secondFactorProviderList;
-        });
     }
     
     getWorkerBroadcastReceiver() {

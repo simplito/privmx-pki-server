@@ -74,7 +74,7 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
     }
     
     async getAllUserApiKeys(userId: types.user.UserId) {
-        return await this.getCollection().find({userId: userId}).toArray() as db.ApiKey[];
+        return await this.getCollection().find({user: userId}).toArray() as db.ApiKey[];
     }
     
     async getApiKeyAndUser(apiKeyId: types.auth.ClientId): Promise<ApiKeyAndUser> {

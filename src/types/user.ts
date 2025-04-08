@@ -1,4 +1,3 @@
-import * as types from ".";
 
 export type UserId = string&{__userId: never};
 export type Username = string&{__userName: never};
@@ -10,12 +9,7 @@ export type Role = "owner";
 export interface User {
     /** user's id */
     id: UserId;
-    /** user's email */
-    email: types.core.Email;
-    /** user's name */
-    name: Username;
-    /** whether user is activated */
-    activated: boolean;
-    /** whether user is blocked */
-    blocked: boolean;
+    /** whether user is enabled */
+    enabled: boolean;
+
 }

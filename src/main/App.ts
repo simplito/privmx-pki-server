@@ -18,7 +18,6 @@ import * as types from "../types";
 import { HttpUtils } from "../utils/HttpUtils";
 import { WebSocketHandler } from "./WebSocketHandler";
 import { HttpClientError } from "../api/HttpError";
-import { RegistrationService } from "../service/RegistrationService";
 export class App {
     
     private httpServer: http.Server;
@@ -33,7 +32,6 @@ export class App {
         private dbManager: MongoDbManager,
         private webSocketInnerManager: WebSocketInnerManager,
         private webSocketHandler: WebSocketHandler,
-        private registrationService: RegistrationService,
     ) {
         this.httpServer = http.createServer((req, res) => {
             Utils.callAsyncSafely(async () => {
@@ -70,7 +68,6 @@ export class App {
         });
         this.setUpTerminus();
         this.setUpWebsocketServers();
-        this.setUpAdmin();
     }
     
     private enrichRequest(req: http.IncomingMessage) {
@@ -153,24 +150,4 @@ export class App {
         }
         this.httpServer.close();
     }
-    
-    private setUpAdmin() {
-        void (async () => {
-            try {
-                const count = await this.registrationService.getUsersCount();
-                if (count === 0) {
-                    await this.registrationService.createUser({
-                        email: "ad@m.in" as types.core.LEmail,
-                        credentials: "admin01" as types.core.PlainPassword,
-                        activated: true,
-                        // isAdmin: true,
-                    });
-                }
-            }
-            catch (e) {
-                this.logger.error("Error during creating admin", e);
-            }
-        })();
-    }
-    
 }

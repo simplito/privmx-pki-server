@@ -200,77 +200,6 @@ export interface ResendSecondFactorCodeModel {
 }
 
 export interface IAuthApi {
-    /**
-    * starts process of resetting credentials
-    * @returns "OK"
-    */
-    startCredentialsReset(model: StartCredentialsResetModel): Promise<types.core.OK>;
-    
-    /**
-    * validates credentials reset Token
-    * @returns "OK"
-    */
-    checkResetCredentialsToken(model: CheckResetCredentialsTokenModel): Promise<types.core.OK>;
-    
-    /**
-    * ends process of resetting credentials with setting password
-    * @returns "OK"
-    */
-    resetPassword(model: ResetPasswordModel): Promise<types.core.OK>;
-    
-    /**
-    * ends process of resetting credentials with setting srp credentials
-    * @returns "OK"
-    */
-    resetSrpCredentials(model: ResetSrpCredentialsModel): Promise<types.core.OK>
-    
-    /**
-    * Creates account
-    * @param model email, password, organization name
-    * @returns info about account activation
-    */
-    register(model: RegisterModel): Promise<RegisterResult>;
-    
-    /**
-    * Validate account activation Token
-    * @param model Token
-    * @returns "OK"
-    */
-    validateAccountToken(model: ValidateAccountTokenModel): Promise<types.core.OK>;
-    
-    /**
-    * Resend account activation email
-    * @param model email
-    * @returns "OK"
-    */
-    resendAccountValidationToken(model: ResendAccountValidationTokenModel): Promise<types.core.OK>;
-    
-    /**
-    * Resend the second-factor code using the method associated with the account
-    * @param model challengeId
-    * @returns "OK"
-    */
-    resendSecondFactorCode(model: ResendSecondFactorCodeModel): Promise<types.core.OK>;
-    
-    /**
-    * Register user SRP credentials
-    * @param model SRP and pbkdf2 credentials
-    * @returns info about account activation
-    */
-    srpRegister(model: SrpRegisterModel): Promise<RegisterResult>;
-    
-    /**
-    * Info about SRP groups
-    * @returns Available SRP groups
-    */
-    getSrpInfo(): Promise<SrpInfoResult>;
-    
-    /**
-    * First phase of SRP login
-    * @param model email
-    * @returns g, N, B, salt, pbkdf2 params and loginToken
-    */
-    startSrpLogin(model: StartSrpLoginModel): Promise<StartSrpLoginResult>;
     
     /**
     *<p>Retrieve an Oauth Access Token, to be used for authentication of requests.</p>
@@ -284,14 +213,7 @@ export interface IAuthApi {
     * @returns accessToken, refreshToken, expirationTime, scope and sessionName(optional)
     */
     token(model: TokenModel, challenge: types.auth.ChallengeModel|undefined): Promise<TokenResult>;
-    
-    /**
-    * Retrieve an Oauth Access Token, to be used for authentication of requests using user credentials.</p>
-    * @param model credentials
-    * @returns accessToken, refreshToken, expirationTime, scope and sessionName(optional)
-    */
-    loginForToken(model: LoginForTokenModel, challenge: types.auth.ChallengeModel|undefined): Promise<LoginForTokenResult>;
-    
+        
     /**
     * Bind Access Token to websocket, request will be executed with the given Token rights.
     * @param model Access Token
@@ -305,11 +227,4 @@ export interface IAuthApi {
     * @returns accessToken, refreshToken, expirationTime, scope and sessionName(optional)
     */
     forkToken(model: ForkTokenModel): Promise<ForkTokenResult>;
-    
-    /**
-    * Second phase of SRP login that returns Token pair
-    * @param model M1, A, login Token and optional 2FA params
-    * @returns M2 and Token pair
-    */
-    confirmSrpLoginForToken(model: ConfirmSrpLoginForTokenModel, challenge: types.auth.ChallengeModel|undefined): Promise<ConfirmSrpLoginForTokenResult>;
 }

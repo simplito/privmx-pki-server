@@ -34,7 +34,7 @@ export const API_ERROR_CODES = {
     "MAIL_TEMPLATE_DOES_NOT_EXIST"           : {code: 0x0020, message: "Mail template does not exist", description: "This mail template was not found"},
     "CANNOT_REMOVE_MAIL_TEMPLATE_LANG"       : {code: 0x0021, message: "Cannot remove mail template lang", description: "You cannot remove language from mail template properties"},
     "MAIL_DOES_NOT_EXIST"                    : {code: 0x0022, message: "Mail does not exist", description: "This mail does not exists"},
-    "ACCOUNT_BLOCKED"                        : {code: 0x0023, message: "Account blocked", description: "This account is blocked"},
+    "ACCOUNT_DISABLED"                       : {code: 0x0023, message: "Account disabled", description: "This account is disabled"},
     "TOKEN_DOES_NOT_EXIST"                   : {code: 0x0024, message: "Token does not exist", description: "Token was not found"},
     "ACCOUNT_ALREADY_ACTIVATED"              : {code: 0x0025, message: "Account already activated", description: "Account is already activated"},
     "DEVELOPER_ALREADY_IN_ORGANIZATION"   : {code: 0x0026, message: "User already in organization", description: "User is already part of this organization"},

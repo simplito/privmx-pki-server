@@ -111,14 +111,12 @@ export class AuthorizationDetector {
         return session && session.tokenInfo ? {user: undefined, tokenInfo: session.tokenInfo} : null;
     }
     
-    private isValidUserAndApiKey(authorizationInfo: types.auth.OAuth2AccessToken, tokenInfo: db.TokenSessionInfo|null, apikey: db.ApiKey|null, user: db.User|null): user is db.User {
-        if (!user || user.blocked || !user.activated) {
+    private isValidUserAndApiKey(_authorizationInfo: types.auth.OAuth2AccessToken, tokenInfo: db.TokenSessionInfo|null, apikey: db.ApiKey|null, user: db.User|null): user is db.User {
+        if (!user || !user.enabled) {
             return false;
         }
-        if (!tokenInfo || !tokenInfo.clientId && user.lastPasswordChange > authorizationInfo.createDate) {
-            return false;
-        }
-        if (tokenInfo.clientId && (!apikey || !apikey.enabled)) {
+
+        if (tokenInfo && tokenInfo.clientId && (!apikey || !apikey.enabled)) {
             return false;
         }
         return true;
@@ -157,7 +155,7 @@ export class AuthorizationDetector {
         if (!apikey || !apikey.enabled) {
             return false;
         }
-        if (!user || user.blocked || !user.activated) {
+        if (!user || !user.enabled) {
             return false;
         }
         const verifed = await this.signatureVerificationService.verify({
@@ -196,7 +194,7 @@ export class AuthorizationDetector {
             return false;
         }
         console.log(3);
-        if (!user || user.blocked || !user.activated) {
+        if (!user || !user.enabled) {
             return false;
         }
         console.log(4);
@@ -231,7 +229,7 @@ export class AuthorizationDetector {
             return;
         }
         const user = await this.userRepository.get(apiKey.user);
-        if (!user || !user.activated) {
+        if (!user || !user.enabled) {
             console.log(1.3)
             return;
         }

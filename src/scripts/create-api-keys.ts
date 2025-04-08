@@ -6,7 +6,6 @@ import * as types from "../types";
 import { UserService } from "../service/UserService";
 import { Scope } from "../types/core";
 import { UserRepository } from "../service/UserRepository";
-import { ApiUserRepository } from "../service/ApiUserRepository";
 const workerLogger = new Logger("Worker");
 
 async function go() {
@@ -22,7 +21,7 @@ async function go() {
     container.registerMongoDbManager(await MongoDbManager.init(configService.values.db));
     
     const convertedScope = container.resolve<UserService>("userService").convertScope(["read" as Scope], "disabled");
-    const user = await container.resolve<ApiUserRepository>("apiUserRepository").create();
+    const user = await container.resolve<UserRepository>("userRepository").create(true);
     const apiKey = await container.resolve<ApiKeyRepository>("apiKeyRepository").create(user._id as types.user.UserId, "MainKey" as types.auth.ApiKeyName, convertedScope.scope, undefined);
     console.log(`API_KEY_ID=${apiKey._id}`);
     console.log(`API_KEY_SECRET=${apiKey.clientSecret}`);

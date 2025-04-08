@@ -167,100 +167,7 @@ export interface ConfirmDisablingOfSecondFactorModel  {
 }
 
 export interface IUserApi {
-    
-    /**
-    * Check authorization
-    * @returns "OK"
-    */
-    checkAuthorization(): Promise<types.core.OK>;
-    
-    /**
-    * Changes password of user
-    * @param model current and new passwords
-    * @returns "OK"
-    */
-    changePassword(model: ChangePasswordModel): Promise<types.core.OK>;
-    
-    /**
-    * Starts process of changing srp credentials
-    * @returns srp parameters needed for second step verification and passwordChangeToken
-    */
-    startSrpCredentialsChange(): Promise<StartSrpCredentialsChangeResult>;
-    
-    /**
-    * Changes srp credentials of user
-    * @param model SRP and pbkdf2 credentials
-    * @returns "OK"
-    */
-    confirmSrpCredentialsChange(model: ConfirmSrpCredentialsChangeModel): Promise<types.core.OK>;
-    
-    /**
-    * Enables second factor authentication
-    * @param model type of authorization "email" or "totp" and secret (for totp only)
-    * @returns "OK"
-    */
-    enableSecondFactor(model: EnableSecondFactorModel): Promise<EnableSecondFactorResult>;
-    
-    /**
-    * Verifies second factor authentication
-    * @param model secondFactorToken, code, rememberDevice
-    * @returns "OK"
-    */
-    confirmEnablingOfSecondFactor(model: ConfirmEnablingOfSecondFactorModel): Promise<types.core.OK>;
-    
-    /**
-    * Disables second factor authentication
-    * @returns "OK"
-    */
-    disableSecondFactor(): Promise<DisableSecondFactorResult>;
-    
-    /**
-    * Verifies second factor authentication
-    * @param model secondFactorToken, code
-    * @returns "OK"
-    */
-    confirmDisablingOfSecondFactor(model: ConfirmDisablingOfSecondFactorModel): Promise<types.core.OK>;
-    
-    /**
-    * Re-sends 2FA code
-    * @param model tokenId
-    * @returns "OK"
-    */
-    resendSecondFactorCode(model: ResendSecondFactorCodeModel): Promise<types.core.OK>;
-    
-    /**
-    * Gets User's profile
-    * @returns profile
-    */
-    getProfile(): Promise<GetProfileResult>;
-    
-    /**
-    * Sets User's profile
-    * @param model User's name
-    * @returns "OK"
-    */
-    setProfile(model: SetProfileModel): Promise<types.core.OK>;
-    
-    /**
-    * Gets User's profile, Organization's profile, and list of Instances
-    * @returns User's profile and Organizations
-    */
-    getInfo(): Promise<GetInfoResult>;
-    
-    /**
-    * Subscribes websocket to channel to receive notifications, list of possible notifications <a href="#notifications">here</a>
-    * @param model channel's name
-    * @returns User's profile and Organizations
-    */
-    subscribeToWebSocketChannel(model: SubscribeToChannelModel): Promise<types.core.OK>;
-    
-    /**
-    * Unsubscribes websocket from channel
-    * @param model channel's name
-    * @returns User's profile and organizations
-    */
-    unsubscribeFromWebSocketChannel(model: UnsubscribeFromChannelModel): Promise<types.core.OK>;
-    
+        
     /**
     * Adds new ApiKey (up to limit of 10)
     * @param model ApiKey name, scope and secret or public key
@@ -293,11 +200,5 @@ export interface IUserApi {
     * lists all ApiKeys
     * @returns list of ApiKeys
     */
-    listApiKeys(): Promise<ListApiKeysResult>;
-    
-    /**
-    * removes all remebered devices
-    * @returns OK
-    */
-    forgetAllDevices(): Promise<types.core.OK>;
+    listApiKeys(): Promise<ListApiKeysResult>;    
 }
