@@ -1,111 +1,5 @@
 import * as types from "../../../types";
 
-export interface RegisterModel {
-    /** Your email */
-    email: types.core.Email;
-    /** Your password */
-    password: types.core.PlainPassword;
-    /** Registration Token or organization invitation Token */
-    token?: types.core.TokenId;
-}
-
-export interface RegisterResult {
-    /** Specifies if you need to verify your email */
-    emailVerificationRequired: boolean;
-}
-
-export interface ValidateAccountTokenModel {
-    /** Token's ID */
-    token: types.core.TokenId;
-}
-
-export interface ResendAccountValidationTokenModel {
-    /** Your email */
-    email: types.core.Email;
-}
-
-export interface StartCredentialsResetModel {
-    /** User email */
-    email: types.core.Email;
-}
-
-export interface CheckResetCredentialsTokenModel {
-    /** Token ID */
-    token: types.core.TokenId
-}
-
-export interface ResetPasswordModel {
-    /** Credentials change Token ID */
-    token: types.core.TokenId;
-    /** New password */
-    newPassword: types.core.PlainPassword;
-}
-export interface SrpInfoResult {
-    /** Available SRP groups */
-    groups: Record<types.core.SrpGroupName, types.core.SrpGroup>
-}
-
-export interface StartSrpLoginModel {
-    /** User email */
-    email: types.core.Email
-}
-
-export interface StartSrpLoginResult {
-    /** Token ID */
-    loginToken: types.core.SrpToken;
-    /** Group's g*/
-    g: types.core.Hexadecimal;
-    /** Group's N*/
-    N: types.core.Hexadecimal;
-    /** One-time server public key */
-    B: types.core.Hexadecimal;
-    /** Salt used to generate SRP verifier */
-    salt: types.core.Hexadecimal;
-    /** Password mixing params */
-    pbkdf: types.auth.Pbkdf2Params;
-}
-
-export interface ConfirmSrpLoginForTokenModel {
-    /** Token ID */
-    loginToken: types.core.SrpToken;
-    /** A calculated by user */
-    A: types.core.Hexadecimal;
-    /** M1 calculated by user */
-    M1: types.core.Hexadecimal;
-    /** Requested Token scope. If not given, scope is full read-write and session limited*/
-    scope?: types.core.Scope[];
-    /** A boolean flag indicating whether the device should bypass 2FA for future logins */
-    rememberDevice?: boolean;
-}
-
-export interface SrpRegisterModel {
-    /** User email */
-    email: types.core.Email;
-    /** SRP group chosen during registration */
-    group: types.core.SrpGroupName;
-    /** Salt used to generate SRP verifier */
-    salt: types.core.Hexadecimal;
-    /** User SRP verifier */
-    verifier: types.core.Hexadecimal;
-    /** Password mixing params */
-    pbkdf2Params: types.auth.Pbkdf2Params;
-    /** Registration Token or Organization invitation Token */
-    token?: types.core.TokenId;
-}
-
-export interface ResetSrpCredentialsModel {
-    /** Credentials change Token ID */
-    token: types.core.TokenId;
-    /** SRP group chosen during registration */
-    group: types.core.SrpGroupName;
-    /** Salt used to generate SRP verifier */
-    salt: types.core.Hexadecimal;
-    /** User SRP verifier */
-    verifier: types.core.Hexadecimal;
-    /** Password mixing params */
-    pbkdf2Params: types.auth.Pbkdf2Params;
-}
-
 export type TokenModel = TokenClientCredentialsModel|TokenRefreshTokenModel|TokenClientSignatureModel;
 export interface TokenRefreshTokenModel {
     /** Token grant type */
@@ -159,17 +53,6 @@ export interface AccessTokenResult {
     sessionName?: types.auth.SessionName;
 }
 
-export interface LoginForTokenModel {
-    /** User's email */
-    email: types.core.Email;
-    /** User's password */
-    password: types.core.PlainPassword;
-    /** Requested Token scope. If not given, scope is full read-write and session limited*/
-    scope?: types.core.Scope[];
-    /** A boolean flag indicating whether the device should bypass 2FA for future logins */
-    rememberDevice?: boolean;
-}
-
 export interface BindAccessTokenModel {
     /** Generated earlier Access Token */
     accessToken: types.core.AccessToken;
@@ -181,23 +64,11 @@ export interface ForkTokenModel {
     sessionName: types.auth.SessionName;
 }
 
-export type ConfirmSrpLoginForTokenResult = AccessTokenResult&{
-    /** M2 calculated by server */
-    M2: types.core.Hexadecimal;
-};
-
 export type TokenResult = AccessTokenResult;
 
 export type ForkTokenResult = AccessTokenResult;
 
 export type LoginForTokenResult = AccessTokenResult;
-
-export interface ResendSecondFactorCodeModel {
-    /** User's email */
-    email: types.core.Email;
-    /** Challenge's id */
-    challengeId: types.core.ChallengeId;
-}
 
 export interface IAuthApi {
     

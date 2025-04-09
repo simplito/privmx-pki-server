@@ -208,38 +208,4 @@ export class AuthorizationDetector {
             this.authorizationHolder.setAgentId(id as types.core.AgentId);
         }
     }
-    
-    private async basicAuthorization(httpBasic: string) {
-        const credentials = this.parseHttpBasic(httpBasic);
-        if (!credentials) {
-            console.log(1.1);
-            return;
-        }
-        const apiKey = await this.apiKeyRepository.get(credentials.apiKeyId);
-        console.log("credentials", credentials, "apiKey", apiKey);
-        if (!apiKey || !apiKey.enabled || apiKey.publicKey || apiKey.clientSecret !== credentials.apiKeySecret) {
-            console.log(1.2);
-            return;
-        }
-        const user = await this.userRepository.get(apiKey.user);
-        if (!user || !user.enabled) {
-            console.log(1.3);
-            return;
-        }
-        this.authorizationHolder.authorizeAsApiKey(apiKey.maxScope, apiKey.user, apiKey._id);
-        return true;
-    }
-    
-    private parseHttpBasic(httpBasic: string) {
-        const credentials = Utils.try(() => atob(httpBasic));
-        if (credentials.success === false) {
-            return null;
-        }
-        const values = credentials.result.split(":");
-        if (values.length !== 2) {
-            return null;
-        }
-        const [apiKeyId, apiKeySecret] = values;
-        return {apiKeyId: apiKeyId as types.auth.ClientId, apiKeySecret: apiKeySecret as types.auth.ClientSecret};
-    }
 }

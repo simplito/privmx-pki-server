@@ -44,26 +44,4 @@ export class MongoDbManager {
             throw e;
         }
     }
-    
-    async withTrasaction<T>(func: (session: mongodb.ClientSession) => Promise<T>) {
-        const session = this.client.startSession();
-        try {
-            let res = null;
-            await session.withTransaction(async () => {
-                res = await func(session);
-            }, {
-                readPreference: "primary",
-                readConcern: {
-                    level: "local",
-                },
-                writeConcern: {
-                    w: "majority",
-                },
-            });
-            return res as T;
-        }
-        finally {
-            await session.endSession();
-        }
-    }
 }

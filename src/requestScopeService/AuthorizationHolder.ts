@@ -3,8 +3,6 @@
 import * as types from "../types";
 import * as db from "../db/Model";
 import { WebSocketInfo } from "../CommonTypes";
-import { UserRepository } from "../service/UserRepository";
-import { LoggedUserDoesNotExist } from "../error/LoggedUserDoesNotExist";
 import { ScopeDefinition } from "../api/Decorators";
 
 export interface OauthTokenInfo {
@@ -39,18 +37,12 @@ export class AuthorizationInfo {
 export class AuthorizationHolder {
     
     constructor(
-        private userRepository: UserRepository,
-        private ip: types.core.IpAddress,
     ) {}
     
     private oauthTokenInfo?: OauthTokenInfo;
     private webSocketInfo?: WebSocketInfo;
     private apiKeyInfo?: ApiKeyInfo;
     private agentId?: types.core.AgentId;
-    
-    isConnectedWithWebsocket() {
-        return !!this.webSocketInfo;
-    }
     
     isAuthorizedWithScope() {
         return !!this.apiKeyInfo || !!this.oauthTokenInfo;
@@ -90,31 +82,6 @@ export class AuthorizationHolder {
         throw new Error("Not authorized as user");
     }
     
-    async getAuthorizationInfo(): Promise<AuthorizationInfo> {
-        if (this.oauthTokenInfo) {
-            const user = this.oauthTokenInfo.user ? this.oauthTokenInfo.user : await this.userRepository.get(this.oauthTokenInfo.userId);
-            if (!user) {
-                throw new LoggedUserDoesNotExist(this.oauthTokenInfo.userId);
-            }
-            this.oauthTokenInfo.user = user;
-            return new AuthorizationInfo(
-                this.oauthTokenInfo.userId,
-                this.agentId || null,
-                this.oauthTokenInfo.sessionId,
-                this.ip,
-            );
-        }
-        throw new Error("Not authorized");
-    }
-    
-    getWebsocketWebSocketInfo() {
-        if (!this.webSocketInfo) {
-            throw new Error("Not connected as websocket");
-        }
-        
-        return this.webSocketInfo;
-    }
-    
     getAgentId() {
         return this.agentId;
     }
@@ -145,5 +112,9 @@ export class AuthorizationHolder {
     
     setAgentId(agentId: types.core.AgentId) {
         this.agentId = agentId;
+    }
+
+    getWebSocketInfo() {
+        return this.webSocketInfo;
     }
 }

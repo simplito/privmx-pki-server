@@ -7,7 +7,6 @@ import { UserService } from "../service/UserService";
 import { Scope } from "../types/core";
 import { UserRepository } from "../service/UserRepository";
 import { ApiKey } from "../db/Model";
-import { api } from "privmx-bridge-multiinstance-plugin-api";
 const workerLogger = new Logger("Worker");
 
 async function go() {
@@ -35,14 +34,16 @@ async function go() {
     else {
         const user = await userRepository.create(true);
         const apiKey = await apiKeyRepository.create(user._id as types.user.UserId, "MainKey" as types.auth.ApiKeyName, convertedScope.scope, undefined);
-        printKeys(apiKey);  
+        printKeys(apiKey);
     }
     await container.resolve<MongoDbManager>("dbManager").close();
 }
 
 function printKeys(apiKey: ApiKey) {
+    /* eslint-disable */
     console.log(`API_KEY_ID=${apiKey._id}`);
     console.log(`API_KEY_SECRET=${apiKey.clientSecret}`);
+    /* eslint-enable */
 }
 
 go().catch(e => {
