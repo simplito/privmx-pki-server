@@ -166,7 +166,7 @@ export interface TokenEncryptionKey {
 
 export interface UserIdentityRecord {
     _id: ObjectId;
-    host: string;
+    instanceId: types.pki.InstanceId;
     contextId: string;
     userId: string;
     userPubKey?: string;
@@ -174,11 +174,11 @@ export interface UserIdentityRecord {
     customData?: unknown;
 }
 
-// export interface UserIdentityKey {
-//     userId: string;
-//     createDate: number;
-//     pubKey: string;
-//     contextId: string;
-//     host: string;
-// }
+export interface HostIdentityRecord {
+    _id: ObjectId;
+    instanceId: types.pki.InstanceId;
+    hostPubKey: string;
+    addresses: types.pki.HostUrl[];
+    createDate: number;
+}
 
