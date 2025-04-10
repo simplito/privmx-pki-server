@@ -19,17 +19,8 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
     }
     
     async create(userId: types.user.UserId, name: types.auth.ApiKeyName, scopes: types.core.Scope[], publicKey: types.core.PubKey|undefined) {
-        const apiKey: db.ApiKey = {
-            _id: this.generateId(),
-            user: userId,
-            clientSecret: publicKey ? this.getApiKeySecretFromPubKey(publicKey) : this.generateSecret(),
-            name: name,
-            publicKey: publicKey,
-            maxScope: scopes,
-            enabled: true,
-        };
-        await this.insert(apiKey);
-        return apiKey;
+        const clientSecret = publicKey ? this.getApiKeySecretFromPubKey(publicKey) : this.generateSecret();
+        return this.addApiKey({maxScope: scopes, userId, clientSecret, name, pubKey: publicKey});
     }
     
     async addApiKey(model: {maxScope: types.core.Scope[], userId: types.user.UserId, clientSecret: types.auth.ClientSecret, name: types.auth.ApiKeyName, pubKey?: types.core.PubKey}) {

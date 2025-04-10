@@ -6,10 +6,6 @@ export type ClientSecret = string&{__clientSecret: never};
 export type ApiKeyName = string&{__apiKeyName: never};
 export type SessionName = string&{__sessionName: never};
 
-export type ApiKeyId = string&{__apiKeyId: never};
-export type ApiKeySecret = string&{__apiKeySecret: never};
-export type ApiUserId = string&{__userId: never};
-
 export interface Pbkdf2Params {
     /** Salt used to mix password */
     salt: types.core.Hexadecimal;
@@ -83,8 +79,3 @@ export interface EmailSecondFactorChallengeData {
     requestParamsHash: string;
 }
 
-export interface ApiUser {
-    id: types.auth.ApiUserId;
-    created: types.core.Timestamp;
-    enabled: boolean;
-}

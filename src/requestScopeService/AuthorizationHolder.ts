@@ -114,7 +114,11 @@ export class AuthorizationHolder {
         this.agentId = agentId;
     }
 
-    getWebSocketInfo() {
+    getWebsocketWebSocketInfo() {
+        if (!this.webSocketInfo) {
+            throw new Error("Not connected as websocket");
+        }
+        
         return this.webSocketInfo;
     }
 }

@@ -67,12 +67,6 @@ export class AuthorizationService {
     async getTokenFromApiKey(apiKey: db.ApiKey, user: db.User, scope: types.core.Scope[]) {
         const key = await this.tokenEncodingService.getKeyToEncode();
         const convertedScope = this.userService.convertScope(scope, key.refreshTokenTTL);
-        // for (const s of convertedScope.scope) {
-        //     if (!apiKey.maxScope.includes(s)) {
-        //         console.log("tutaj");
-        //         throw new AppException("INSUFFICIENT_SCOPE");
-        //     }
-        // }
         const session = await this.prepareTokenSession(key.refreshTokenTTL, convertedScope, user, apiKey, undefined);
         const connectionId = (convertedScope.connectionLimited && this.webSocketInfo) ? this.webSocketInfo.connectionId : undefined;
         
