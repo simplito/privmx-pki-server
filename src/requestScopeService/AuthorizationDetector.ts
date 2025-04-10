@@ -115,7 +115,9 @@ export class AuthorizationDetector {
         if (!user || !user.enabled) {
             return false;
         }
-        
+        if (!tokenInfo || !tokenInfo.clientId) {
+            return false;
+        }
         if (tokenInfo && tokenInfo.clientId && (!apikey || !apikey.enabled)) {
             return false;
         }
@@ -131,14 +133,7 @@ export class AuthorizationDetector {
             return await this.parseTokenAndTryAuthorizeAsGivenToken(auth.data as types.core.AccessToken);
         }
         else if (auth.method === "Basic") {
-            const ret = await this.tryAuthorizeAsApiKeyWithClientCredentials(auth.data);
-            // if (ret === false) {
-            //     console.log("new auth");
-            //     const ret2 = await this.basicAuthorization(auth.data);
-            //     console.log("ret2", ret2);
-            //     return ret2;
-            // }
-            return ret;
+            return this.tryAuthorizeAsApiKeyWithClientCredentials(auth.data);
         }
         else if (auth.method === RequestSignature.PMX_HMAC_SHA256) {
             return await this.tryAuthorizeAsApiKeyWithSignature(auth.data);

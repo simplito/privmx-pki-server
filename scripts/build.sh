@@ -7,7 +7,7 @@ MAIN_DIR="$(dirname $SCRIPT_DIR)"
 
 cd $MAIN_DIR
 npm ci
-npm run compile-light
+npm run compile
 
 # pack script
 VERSION=ci

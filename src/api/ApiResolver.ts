@@ -44,7 +44,9 @@ export class ApiResolver<Context> {
                 throw new HttpClientError("TOO_MANY_REQUESTS");
             }
         }
-        return await api.execute(methodEntry.method, requestParams, challenge, async () => {});
+        return await api.execute(methodEntry.method, requestParams, challenge, async () => {
+            return;
+        });
     }
     
     private extractSecondFactorInfoFromParams(params: unknown) {

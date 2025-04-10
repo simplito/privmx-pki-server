@@ -35,10 +35,6 @@ export class AuthorizationInfo {
 }
 
 export class AuthorizationHolder {
-    
-    constructor(
-    ) {}
-    
     private oauthTokenInfo?: OauthTokenInfo;
     private webSocketInfo?: WebSocketInfo;
     private apiKeyInfo?: ApiKeyInfo;
@@ -113,7 +109,7 @@ export class AuthorizationHolder {
     setAgentId(agentId: types.core.AgentId) {
         this.agentId = agentId;
     }
-
+    
     getWebsocketWebSocketInfo() {
         if (!this.webSocketInfo) {
             throw new Error("Not connected as websocket");

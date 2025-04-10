@@ -10,7 +10,7 @@ export class Migration000Scheme {
         await migrationCollection.createIndex({status: 1});
         
         await mongoDbManager.createOrGetCollection("user");
-
+        
         const {collection: sessionCollection} = await mongoDbManager.createOrGetCollection("session");
         await sessionCollection.createIndex({user: 1});
         
