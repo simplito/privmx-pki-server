@@ -10,6 +10,7 @@
     "lint": "eslint -c eslint.config.mjs ./src",
     "test": "q2-test",
     "compile": "npm run build && npm run gen-docs && npm run lint && npm run detect-unused && npm run test",
+    "compile-light": "npm run build && npm run gen-docs",
     "gen-docs": "node ./out/docs/scripts/gen_docs.js",
     "gen-json-docs": "node ./out/docs/scripts/gen_json_docs.js",
     "gen-slate-from-json": "node ./out/docs/scripts/gen_slate_from_json.js",
