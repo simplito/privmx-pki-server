@@ -38,14 +38,13 @@ export class BaseApi implements Executor {
         return false;
     }
     
-    async execute(method: string, params: any, challenge: types.auth.ChallengeModel|undefined, secondFactorMiddleware: () => Promise<void>): Promise<any> {
+    async execute(method: string, params: any, challenge: types.auth.ChallengeModel|undefined): Promise<any> {
         const m = (<any> this)[method];
         if (!ApiMethod.getExportedMethod(this.constructor, method) || typeof(m) != "function") {
             throw new AppException("METHOD_NOT_FOUND");
         }
         this.validateAccess(method, params);
         this.validateParams(method, params);
-        await secondFactorMiddleware();
         return m.call(this, params, challenge);
     }
     

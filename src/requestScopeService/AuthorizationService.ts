@@ -7,23 +7,16 @@ import { HttpRequest, WebSocketInfo } from "../CommonTypes";
 import { HttpUtils } from "../utils/HttpUtils";
 import { SessionRepository } from "../service/SessionRepository";
 import { ConfigService } from "../service/ConfigService";
-import { SrpAuthenticationService } from "../service/SrpAuthenticationService";
 import { UserRepository } from "../service/UserRepository";
-import { PasswordService } from "../service/PasswordService";
-import { FakeSrpTokenService } from "../service/FakeSrpTokenService";
 import { Utils } from "../utils/Utils";
 import { EventRepository } from "../service/EventRepository";
 import { DateUtils } from "../utils/DateUtils";
 import { IpRateLimiterService } from "../requestScopeService/IpRateLimiterService";
 import { OAuthTokenModel, OauthTokenService } from "../service/OauthTokenService";
 import { ApiKeyRepository } from "../service/ApiKeyRepository";
-import { Crypto } from "../utils/Crypto";
 import { OAuth2Token, ScopeObject } from "../types/auth";
 import { SignatureVerificationService } from "../service/SignatureVerificationService";
 import { TokenEncodingService } from "../service/TokenEncodingService";
-import { ChallengeService } from "../service/ChallengeService";
-import { SecondFactorRequired } from "../api/SecondFactorRequired";
-import { SrpHandleCache, SrpSessionTokenData } from "../cluster/master/ipcServices/SrpHandleCache";
 
 export class AuthorizationService {
     
@@ -33,10 +26,7 @@ export class AuthorizationService {
         private sessionRepository: SessionRepository,
         private userService: UserService,
         private configService: ConfigService,
-        private srpAuthenticationService: SrpAuthenticationService,
         private userRepository: UserRepository,
-        private passwordService: PasswordService,
-        private fakeSrpTokenService: FakeSrpTokenService,
         private eventRepository: EventRepository,
         private webSocketInfo: WebSocketInfo|null,
         private ipRateLimiterService: IpRateLimiterService,
@@ -44,72 +34,10 @@ export class AuthorizationService {
         private apiKeyRepository: ApiKeyRepository,
         private signatureVerificationService: SignatureVerificationService,
         private tokenEncodingService: TokenEncodingService,
-        private challengeService: ChallengeService,
-        private srpHandleCache: SrpHandleCache,
     ) {
     }
     
-    async startSrpLogin(email: types.core.LEmail) {
-        const user = await this.userRepository.getByEmail(email);
-        if (!user) {
-            return this.fakeSrpTokenService.generateFakeInitialStepResult(email);
-        }
-        if (user.credentials.type !== "srp") {
-            throw new AppException("SRP_NOT_ENABLED_FOR_THIS_ACCOUNT");
-        }
-        await this.checkLoginFrequencyForAccountOnThisIp(user);
-        const groupName = user.credentials.group;
-        const pbkdf = user.credentials.pbkdf;
-        const salt = user.credentials.salt;
-        const {g, N, B, b} = await this.srpAuthenticationService.initialSrpStep(groupName, user.credentials.verifier);
-        
-        const srpTokenData: SrpSessionTokenData = {
-            email: user.email,
-            b: b,
-            B: B,
-            group: groupName,
-            v: user.credentials.verifier,
-        };
-        const token = await this.srpHandleCache.saveSrpSession(srpTokenData);
-        return {g, N, B, loginToken: token, pbkdf, salt};
-    }
-    
-    private async getSrpToken(loginToken: types.core.SrpToken) {
-        const token = await this.srpHandleCache.getSrpSession(loginToken);
-        if (!token) {
-            throw new AppException("TOKEN_DOES_NOT_EXIST");
-        }
-        return token;
-    }
-    
-    async getAccessTokenFromCredentials(requestParamsHash: string, email: types.core.LEmail, password: types.core.PlainPassword, challengeModel: types.auth.ChallengeModel|undefined, deviceId: types.core.AgentId|undefined, rememberDevice: boolean, scope?: types.core.Scope[]) {
-        const user = await this.getUserAndCheckPassword(email, password);
-        if (!user) {
-            throw new AppException("INVALID_USER_OR_PASSWORD");
-        }
-        await this.processSecondFactor(user, requestParamsHash, deviceId, rememberDevice, challengeModel);
-        
-        const tokenScope = scope ? scope : ["user:read_write", "session:" + this.generateSessionName()] as types.core.Scope[];
-        const key = await this.tokenEncodingService.getKeyToEncode();
-        const convertedScope = this.userService.convertScope(tokenScope, key.refreshTokenTTL);
-        const session = await this.prepareTokenSession(key.refreshTokenTTL, convertedScope, user, undefined, undefined);
-        const connectionId = (convertedScope.connectionLimited && this.webSocketInfo) ? this.webSocketInfo.connectionId : undefined;
-        
-        const tokenModel: OAuthTokenModel = {
-            sessionId: session._id,
-            seq: session.seq,
-            connectionId,
-        };
-        const {accessToken, refreshToken} = await this.getTokenPair(tokenModel, key, convertedScope.expiresIn);
-        return {
-            accessToken,
-            refreshToken,
-            sessionName: session.name,
-            scope: convertedScope.scope,
-        };
-    }
-    
-    async getAccessTokenFromClientCredentials(requestParamsHash: string, clientId: types.auth.ClientId, clientSecret: types.auth.ClientSecret, scope: types.core.Scope[], deviceId: types.core.AgentId|undefined, challengeModel: types.auth.ChallengeModel|undefined) {
+    async getAccessTokenFromClientCredentials(_requestParamsHash: string, clientId: types.auth.ClientId, clientSecret: types.auth.ClientSecret, scope: types.core.Scope[], _deviceId: types.core.AgentId|undefined, _challengeModel: types.auth.ChallengeModel|undefined) {
         const {apikey, user} = await this.apiKeyRepository.getApiKeyAndUser(clientId);
         if (!user) {
             throw new AppException("DEVELOPER_DOES_NOT_EXIST");
@@ -118,11 +46,10 @@ export class AuthorizationService {
         if (!apikey || !apikey.enabled || apikey.clientSecret !== clientSecret) {
             throw new AppException("INVALID_CREDENTIALS");
         }
-        await this.processSecondFactor(user, requestParamsHash, deviceId, false, challengeModel);
         return this.getTokenFromApiKey(apikey, user, scope);
     }
     
-    async getAccessTokenFromSignature(requestParamsHash: string, clientId: types.auth.ClientId, scope: types.core.Scope[], timestamp: types.core.Timestamp, nonce: string, signature: types.core.Base64, challengeModel: types.auth.ChallengeModel|undefined, deviceId: types.core.AgentId|undefined, data?: string) {
+    async getAccessTokenFromSignature(_requestParamsHash: string, clientId: types.auth.ClientId, scope: types.core.Scope[], timestamp: types.core.Timestamp, nonce: string, signature: types.core.Base64, _challengeModel: types.auth.ChallengeModel|undefined, _deviceId: types.core.AgentId|undefined, data?: string) {
         const {apikey, user} = await this.apiKeyRepository.getApiKeyAndUser(clientId);
         if (!user) {
             throw new AppException("DEVELOPER_DOES_NOT_EXIST");
@@ -134,18 +61,12 @@ export class AuthorizationService {
         if (!await this.isValidClientSignature(apikey, timestamp, nonce, signature, data)) {
             throw new AppException("UNAUTHORIZED");
         }
-        await this.processSecondFactor(user, requestParamsHash, deviceId, false, challengeModel);
         return this.getTokenFromApiKey(apikey, user, scope);
     }
     
     async getTokenFromApiKey(apiKey: db.ApiKey, user: db.User, scope: types.core.Scope[]) {
         const key = await this.tokenEncodingService.getKeyToEncode();
         const convertedScope = this.userService.convertScope(scope, key.refreshTokenTTL);
-        for (const s of convertedScope.scope) {
-            if (!apiKey.maxScope.includes(s)) {
-                throw new AppException("INSUFFICIENT_SCOPE");
-            }
-        }
         const session = await this.prepareTokenSession(key.refreshTokenTTL, convertedScope, user, apiKey, undefined);
         const connectionId = (convertedScope.connectionLimited && this.webSocketInfo) ? this.webSocketInfo.connectionId : undefined;
         
@@ -237,48 +158,6 @@ export class AuthorizationService {
         this.webSocketInfo.authorization = decodedToken;
     }
     
-    async confirmSrpLoginForToken(requestParamsHash: string, M1: types.core.Hexadecimal, A: types.core.Hexadecimal, loginToken: types.core.SrpToken, deviceId: types.core.AgentId|undefined, rememberDevice: boolean, scope?: types.core.Scope[], challengeModel?: types.auth.ChallengeModel) {
-        this.fakeSrpTokenService.checkIfTokenIsFake(loginToken);
-        const tokenData =  await this.getSrpToken(loginToken);
-        const user = await this.userRepository.getByEmail(tokenData.email);
-        if (!user) {
-            throw new AppException("DEVELOPER_DOES_NOT_EXIST");
-        }
-        if (!user.activated) {
-            throw new AppException("ACCOUNT_NOT_ACTIVATED_YET");
-        }
-        if (user.blocked) {
-            throw new AppException("ACCOUNT_BLOCKED");
-        }
-        await this.processSecondFactor(user, requestParamsHash, deviceId, rememberDevice, challengeModel);
-        await this.srpHandleCache.delete(loginToken);
-        const M2Result = await Utils.tryPromise(() => this.srpAuthenticationService.secondSrpStep(M1, A, tokenData.group, tokenData.v, tokenData.B, tokenData.b));
-        if (M2Result.success === false) {
-            throw new AppException("INVALID_USER_OR_PASSWORD");
-        }
-        
-        const tokenScope = scope ? scope : ["user:read_write", "instance:read_write", "solution:read_write", "context:read_write", "organization:read_write", "session:" + this.generateSessionName()] as types.core.Scope[];
-        const key = await this.tokenEncodingService.getKeyToEncode();
-        const convertedScope = this.userService.convertScope(tokenScope, key.refreshTokenTTL);
-        const session = await this.prepareTokenSession(key.refreshTokenTTL, convertedScope, user, undefined, undefined);
-        const connectionId = (convertedScope.connectionLimited && this.webSocketInfo) ? this.webSocketInfo.connectionId : undefined;
-        
-        const tokenModel: OAuthTokenModel = {
-            sessionId: session._id,
-            seq: session.seq,
-            connectionId,
-        };
-        const {accessToken, refreshToken} = await this.getTokenPair(tokenModel, key, convertedScope.expiresIn);
-        
-        return {
-            accessToken,
-            refreshToken,
-            sessionName: session.name,
-            scope: convertedScope.scope,
-            M2: M2Result.result,
-        };
-    }
-    
     private async createTokenSession(tokenInfo: db.TokenSessionInfo, user: db.User, sessionName: types.auth.SessionName|undefined) {
         void this.ipRateLimiterService.resetLoginCountForThisIp(user._id);
         const pastSessions = await this.sessionRepository.getUserSessionsSortedByCreateDate(user._id);
@@ -293,77 +172,6 @@ export class AuthorizationService {
         };
         await this.eventRepository.registerNewEvent(eventData);
         return session;
-    }
-    
-    private async getUserAndCheckPassword(email: types.core.LEmail, password: types.core.PlainPassword) {
-        const user = await this.userRepository.getByEmail(email);
-        if (!user) {
-            return null;
-        }
-        if (!user.activated) {
-            throw new AppException("ACCOUNT_NOT_ACTIVATED_YET");
-        }
-        if (user.blocked) {
-            throw new AppException("ACCOUNT_BLOCKED");
-        }
-        await this.checkLoginFrequencyForAccountOnThisIp(user);
-        if (user.credentials.type === "password") {
-            if (!await this.passwordService.checkPassword(password, user.credentials.password)) {
-                return null;
-            }
-            await this.migrateToSrp(user._id, user.email, password);
-            return user;
-        }
-        if (user.credentials.type === "srp") {
-            if (!await this.srpAuthenticationService.verifyUserByPassword(user.credentials, user.email, password)) {
-                return null;
-            }
-            return user;
-        }
-        throw new Error("Unuspported credentials type");
-    }
-    
-    private async migrateToSrp(userId: types.user.UserId, email: types.core.LEmail, currentPassword: types.core.PlainPassword) {
-        const newSrpCredentials = await this.srpAuthenticationService.prepareSrpCredentialsFromPassword(email, currentPassword);
-        await this.userRepository.updateUserCredentials(userId, newSrpCredentials);
-    }
-    
-    private async checkLoginFrequencyForAccountOnThisIp(user: db.User) {
-        const loginRateInfo = await this.ipRateLimiterService.getLoginRateInfoForThisIp(user._id);
-        void this.ipRateLimiterService.increaseLoginCountForThisIp(user._id);
-        if (!loginRateInfo.lastLoginAttempt || !this.configService.values.apiRateLimit.loginRateLimiterEnabled) {
-            return;
-        }
-        if (loginRateInfo.loginAttemptsCount > 20 || await this.ifPossibleAttackTarget(user)) {
-            await this.ipRateLimiterService.banThisIpAdress(DateUtils.getHours(1));
-            await this.userRepository.updatePossibleLoginAttackTarget(user._id, DateUtils.getExpirationDate(DateUtils.getHours(1)));
-            throw new AppException("TOO_MANY_UNSUCCESSFUL_LOGIN_ATTEMPTS");
-        }
-        const secondsPassedSinceLastLogin = (DateUtils.now() - loginRateInfo.lastLoginAttempt) / 1000;
-        if (loginRateInfo.loginAttemptsCount > 15 && secondsPassedSinceLastLogin < 60) {
-            throw new AppException("TOO_MANY_LOGIN_ATTEMPTS", `Try again in ${60 - secondsPassedSinceLastLogin} seconds`);
-        }
-        if (loginRateInfo.loginAttemptsCount > 10 && secondsPassedSinceLastLogin < 30) {
-            throw new AppException("TOO_MANY_LOGIN_ATTEMPTS", `Try again in ${30 - secondsPassedSinceLastLogin} seconds`);
-        }
-        if (loginRateInfo.loginAttemptsCount > 5 && secondsPassedSinceLastLogin < 15) {
-            throw new AppException("TOO_MANY_LOGIN_ATTEMPTS", `Try again in ${15 - secondsPassedSinceLastLogin} seconds`);
-        }
-        if (secondsPassedSinceLastLogin < 1) {
-            throw new AppException("TOO_MANY_LOGIN_ATTEMPTS", "Try again in 1 second");
-        }
-    }
-    
-    private async ifPossibleAttackTarget(user: db.User) {
-        if (!user.possibleLoginAttackTarget) {
-            return false;
-        }
-        if (user.possibleLoginAttackTarget < DateUtils.now()) {
-            await this.userRepository.updatePossibleLoginAttackTarget(user._id, undefined);
-            await this.ipRateLimiterService.resetLoginCountForThisIp(user._id);
-            return false;
-        }
-        return true;
     }
     
     private async isValidClientSignature(apiKey: db.ApiKey, timestamp: types.core.Timestamp, nonce: string, signature: types.core.Base64, data?: string) {
@@ -416,10 +224,6 @@ export class AuthorizationService {
         return {accessToken, refreshToken};
     }
     
-    private generateSessionName() {
-        Crypto.randomBytes(16).toString("base64");
-    }
-    
     private async validateToken(token: OAuth2Token) {
         if (token.expires < DateUtils.now()) {
             throw new AppException("TOKEN_EXPIRED");
@@ -456,22 +260,5 @@ export class AuthorizationService {
             }
         }
         return {tokenInfo, user: dev, apikey: client};
-    }
-    
-    private async processSecondFactor(user: db.User, requestParamsHash: string, deviceId: types.core.AgentId|undefined, rememberDevice: boolean, challengeModel?: types.auth.ChallengeModel) {
-        if (deviceId && user.secondFactor && user.secondFactor.knownDevices.includes(deviceId)) {
-            return;
-        }
-        if (challengeModel && user.secondFactor) {
-            await this.challengeService.validate(user._id, challengeModel.challenge, challengeModel.authorizationData, this.ipRateLimiterService.getIp(), requestParamsHash, rememberDevice && deviceId ? deviceId : null);
-        }
-        else if (user.secondFactor) {
-            const {challengeId: newChallengeId, info} = await this.challengeService.generateChallenge(user._id, user.secondFactor, requestParamsHash);
-            throw new SecondFactorRequired({
-                secondFactorRequired: true,
-                secondFactorInfo: info,
-                challenge: newChallengeId,
-            });
-        }
     }
 }

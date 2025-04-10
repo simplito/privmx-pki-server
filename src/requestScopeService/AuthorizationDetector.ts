@@ -111,14 +111,14 @@ export class AuthorizationDetector {
         return session && session.tokenInfo ? {user: undefined, tokenInfo: session.tokenInfo} : null;
     }
     
-    private isValidUserAndApiKey(authorizationInfo: types.auth.OAuth2AccessToken, tokenInfo: db.TokenSessionInfo|null, apikey: db.ApiKey|null, user: db.User|null): user is db.User {
-        if (!user || user.blocked || !user.activated) {
+    private isValidUserAndApiKey(_authorizationInfo: types.auth.OAuth2AccessToken, tokenInfo: db.TokenSessionInfo|null, apikey: db.ApiKey|null, user: db.User|null): user is db.User {
+        if (!user || !user.enabled) {
             return false;
         }
-        if (!tokenInfo || !tokenInfo.clientId && user.lastPasswordChange > authorizationInfo.createDate) {
+        if (!tokenInfo || !tokenInfo.clientId) {
             return false;
         }
-        if (tokenInfo.clientId && (!apikey || !apikey.enabled)) {
+        if (tokenInfo && tokenInfo.clientId && (!apikey || !apikey.enabled)) {
             return false;
         }
         return true;
@@ -133,7 +133,7 @@ export class AuthorizationDetector {
             return await this.parseTokenAndTryAuthorizeAsGivenToken(auth.data as types.core.AccessToken);
         }
         else if (auth.method === "Basic") {
-            return await this.tryAuthorizeAsApiKeyWithClientCredentials(auth.data);
+            return this.tryAuthorizeAsApiKeyWithClientCredentials(auth.data);
         }
         else if (auth.method === RequestSignature.PMX_HMAC_SHA256) {
             return await this.tryAuthorizeAsApiKeyWithSignature(auth.data);
@@ -150,7 +150,7 @@ export class AuthorizationDetector {
         if (!apikey || !apikey.enabled) {
             return false;
         }
-        if (!user || user.blocked || !user.activated) {
+        if (!user || !user.enabled) {
             return false;
         }
         const verifed = await this.signatureVerificationService.verify({
@@ -181,12 +181,11 @@ export class AuthorizationDetector {
         if (!credentials || !credentials.clientId || !credentials.clientSecret) {
             return false;
         }
-        
         const {user, apikey} = await this.apiKeyRepository.getApiKeyAndUser(credentials.clientId);
         if (!apikey || !apikey.enabled || apikey.publicKey || apikey.clientSecret !== credentials.clientSecret) {
             return false;
         }
-        if (!user || user.blocked || !user.activated) {
+        if (!user || !user.enabled) {
             return false;
         }
         this.authorizationHolder.authorizeAsApiKey(apikey.maxScope, apikey.user, apikey._id);

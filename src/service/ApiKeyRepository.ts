@@ -3,6 +3,7 @@ import * as db from "../db/Model";
 import * as types from "../types";
 import { MongoDbManager } from "../db/MongoDbManager";
 import { UserRepository } from "./UserRepository";
+import { Crypto } from "../utils/Crypto";
 export interface ApiKeyAndUser {
     apikey: db.ApiKey|null;
     user: db.User|null;
@@ -15,6 +16,11 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
         dbManager: MongoDbManager,
     ) {
         super(dbManager, ApiKeyRepository.COLLECTION_NAME);
+    }
+    
+    async create(userId: types.user.UserId, name: types.auth.ApiKeyName, scopes: types.core.Scope[], publicKey: types.core.PubKey|undefined) {
+        const clientSecret = publicKey ? this.getApiKeySecretFromPubKey(publicKey) : this.generateSecret();
+        return this.addApiKey({maxScope: scopes, userId, clientSecret, name, pubKey: publicKey});
     }
     
     async addApiKey(model: {maxScope: types.core.Scope[], userId: types.user.UserId, clientSecret: types.auth.ClientSecret, name: types.auth.ApiKeyName, pubKey?: types.core.PubKey}) {
@@ -59,7 +65,7 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
     }
     
     async getAllUserApiKeys(userId: types.user.UserId) {
-        return await this.getCollection().find({userId: userId}).toArray() as db.ApiKey[];
+        return await this.getCollection().find({user: userId}).toArray() as db.ApiKey[];
     }
     
     async getApiKeyAndUser(apiKeyId: types.auth.ClientId): Promise<ApiKeyAndUser> {
@@ -84,5 +90,13 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
         }
         const {users, ...apiKey} = ele;
         return {apikey: apiKey, user: users[0]};
+    }
+    
+    private generateSecret() {
+        return Crypto.randomBytes(16).toString("hex") as types.auth.ClientSecret;
+    }
+    
+    private getApiKeySecretFromPubKey(pubKey: types.core.PubKey) {
+        return Crypto.md5(Buffer.from(pubKey, "utf8")).toString("hex") as types.auth.ClientSecret;
     }
 }

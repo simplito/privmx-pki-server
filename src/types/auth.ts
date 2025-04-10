@@ -78,3 +78,4 @@ export interface EmailSecondFactorChallengeData {
     attempts: number;
     requestParamsHash: string;
 }
+

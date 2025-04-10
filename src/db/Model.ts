@@ -60,17 +60,7 @@ export interface Event {
 export interface User {
     _id: types.user.UserId;
     createDate: types.core.Timestamp;
-    lastPasswordChange: types.core.Timestamp;
-    modDate: types.core.Timestamp;
-    email: types.core.LEmail;
-    name: types.user.Username;
-    credentials: UserCredentials;
-    activated: boolean;
-    blocked: boolean;
-    searchable: Searchable;
-    secondFactor?: SecondFactor;
-    possibleLoginAttackTarget?: types.core.Timestamp;
-    possibleTotpAttackTarget?: types.core.Timestamp;
+    enabled: boolean;
 }
 
 export type SecondFactor = EmailSecondFactor | TotpSecondFactor;
@@ -181,4 +171,3 @@ export interface HostIdentityRecord {
     addresses: types.pki.HostUrl[];
     createDate: number;
 }
-

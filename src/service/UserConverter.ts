@@ -6,10 +6,7 @@ export class UserConverter {
     convertUser(user: db.User) {
         const res: types.user.User = {
             id: user._id,
-            email: user.email,
-            name: user.name,
-            activated: user.activated,
-            blocked: user.blocked,
+            enabled: user.enabled,
         };
         return res;
     }

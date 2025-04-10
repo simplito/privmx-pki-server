@@ -5,7 +5,6 @@ import { HttpRequest } from "../CommonTypes";
 import { EventReporter } from "../service/EventReporter";
 import { HttpClientError } from "./HttpError";
 import * as types from "../types";
-import { SecondFactorRequired } from "./SecondFactorRequired";
 
 export type ApiExecutor = (method: string, params: unknown, token?: string) => unknown;
 
@@ -70,10 +69,6 @@ export class JsonRpcServer {
             return {jsonrpc: "2.0", id: requestInfoHolder.id, result: result};
         }
         catch (e) {
-            if (e instanceof SecondFactorRequired) {
-                this.eventReporter.report2FARequiredApiRequest(requestInfoHolder.method);
-                return {jsonrpc: "2.0", id: requestInfoHolder.id, result: e.challenge};
-            }
             this.eventReporter.reportUnsuccessfulApiRequest(rayId, e, requestInfoHolder.method);
             if (e instanceof HttpClientError) {
                 throw e;

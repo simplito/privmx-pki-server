@@ -9,15 +9,14 @@ export class Migration000Scheme {
         const {collection: migrationCollection} = await mongoDbManager.createOrGetCollection("migrationx");
         await migrationCollection.createIndex({status: 1});
         
-        const {collection: userCollection} = await mongoDbManager.createOrGetCollection("user");
-        await userCollection.createIndex({email: 1}, {unique: true});
+        await mongoDbManager.createOrGetCollection("user");
         
         const {collection: sessionCollection} = await mongoDbManager.createOrGetCollection("session");
         await sessionCollection.createIndex({user: 1});
         
         const {collection: apiKeyCollection} = await mongoDbManager.createOrGetCollection("api_key");
         await apiKeyCollection.createIndex({user: 1});
-
+        
         const {collection: hostIdentityCollection} = await mongoDbManager.createOrGetCollection("hostidentity");
         await hostIdentityCollection.createIndex({hostPubKey: 1}, {unique: true});
         await hostIdentityCollection.createIndex({addresses: 1}, {unique: true});

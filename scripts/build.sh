@@ -8,14 +8,8 @@ MAIN_DIR="$(dirname $SCRIPT_DIR)"
 cd $MAIN_DIR
 npm ci
 npm run compile
-if [ "$E2E_TESTS" = "no" ]; then
-    echo "Skip E2E Tests"
-else
-    npm run e2e-tests
-fi
 
 # pack script
-
 VERSION=ci
 BUILD_DIR=$MAIN_DIR/build
 

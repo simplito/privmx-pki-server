@@ -18,8 +18,4 @@ export class MongoUtils {
     static isCollectionAlreadExistsError(e: unknown) {
         return MongoUtils.isMongoErrorWithCode(e, MongoUtils.ERRORS.COLLECTION_ALREADY_EXISTS);
     }
-    
-    static isDuplicateKeyError(e: unknown) {
-        return MongoUtils.isMongoErrorWithCode(e, MongoUtils.ERRORS.DUPLICATE_KEY_ERROR);
-    }
 }

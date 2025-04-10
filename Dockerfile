@@ -1,10 +1,9 @@
-FROM node:22.11.0-bullseye-slim AS base
+FROM node:22.14.0-bullseye-slim AS base
 
 
 FROM base AS builder
 COPY . /app
 ARG MONGO_URL
-ARG E2E_TESTS
 RUN cd /app && ./scripts/build.sh
 
 FROM slatedocs/slate AS docs

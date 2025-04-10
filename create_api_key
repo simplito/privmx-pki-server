@@ -1,0 +1,4 @@
+#!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+DATA=`node $SCRIPT_DIR/out/scripts/create-api-keys.js | grep API_KEY`
+for KEY in $DATA; do echo $KEY; done

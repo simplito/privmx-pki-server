@@ -8,9 +8,6 @@ import { MongoDbManager } from "../db/MongoDbManager";
 import { Logger } from "../utils/Logger";
 import { ApiResolver, Executor } from "../api/ApiResolver";
 import { AuthApi } from "../api/client/auth/AuthApi";
-import { EmailSecondFactorService } from "../service/EmailSecondFactorService";
-import { SecondFactorServiceType, ISecondFactorService } from "../service/SecondFactorProvider";
-import { TotpSecondFactorService } from "../service/TotpSecondFactorService";
 import * as cluster from "cluster";
 import { DeferredMap } from "../cluster/common/DeferredMap";
 import { IpcExecutor } from "../cluster/common/IpcExecutor";
@@ -38,7 +35,7 @@ export class Container extends IOC implements VerifableIOC {
         super();
     }
     
-    static async init({worker, ipcServicesDescriptors}: {worker: cluster.Worker, ipcServicesDescriptors?: IpcServiceDescriptor[]}) {
+    static setup() {
         const container = new Container();
         Scanner.registerToIoc(container, path.resolve(__dirname, "../service/"));
         container.registerFactory("logger", (_parent: unknown, parentName: string|null) => {
@@ -60,11 +57,15 @@ export class Container extends IOC implements VerifableIOC {
         container.registerWithName("ipcRequester", WorkerIpcRequester);
         container.registerWithName("mailSender", NodeMailerMailSender);
         container.registerValue("container", container);
-        container.registerValue("worker", worker);
         container.registerIpcServices();
-        container.registerSecondFactorProviderList();
-        
+        // container.registerSecondFactorProviderList();
+        return container;
+    }
+    
+    static async init({worker, ipcServicesDescriptors}: {worker: cluster.Worker, ipcServicesDescriptors?: IpcServiceDescriptor[]}) {
+        const container = this.setup();
         const ipcMessageProcessor = container.getIpcMessageProcessor();
+        container.registerValue("worker", worker);
         worker.on("message", message => {
             void ipcMessageProcessor.processMessage(message, "master", worker);
         });
@@ -110,19 +111,6 @@ export class Container extends IOC implements VerifableIOC {
     
     getListOfRegisteredServices() {
         return Object.keys(this.map);
-    }
-    
-    private registerSecondFactorProviderList() {
-        let secondFactorProviderList: Map<SecondFactorServiceType, ISecondFactorService>|null = null;
-        this.registerFactory("secondFactorProviderList", () => {
-            if (!secondFactorProviderList) {
-                secondFactorProviderList = new Map<SecondFactorServiceType, ISecondFactorService>([
-                    ["email", this.resolve<EmailSecondFactorService>("emailSecondFactorService")],
-                    ["totp", this.resolve<TotpSecondFactorService>("totpSecondFactorService")],
-                ]);
-            }
-            return secondFactorProviderList;
-        });
     }
     
     getWorkerBroadcastReceiver() {
