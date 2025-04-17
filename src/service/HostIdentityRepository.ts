@@ -155,7 +155,7 @@ export class HostIdentityRepository extends BaseRepository<db.HostIdentityRecord
     }
     
     private isMongoDuplicationError(e: unknown, field: string): boolean {
-        return (e !== null && typeof(e) === "object") && "code" in e && e.code === 1100 && "keyValue" in e && e.keyValue !== null && typeof(e.keyValue) === "object" && field in e.keyValue;
+        return (e !== null && typeof(e) === "object") && "code" in e && e.code === 11000 && "keyValue" in e && e.keyValue !== null && typeof(e.keyValue) === "object" && field in e.keyValue;
     }
     
     private isCustomExistsError(e: unknown): boolean {
