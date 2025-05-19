@@ -57,9 +57,9 @@ END
 
 tee $WORK_DIR/package.json > /dev/null << END
 {
-    "name": "@types/jsronrcp-webapp-template-api",
+    "name": "@types/privmx-pki-server",
     "version": "$VERSION",
-    "description": "API types for Webapp Template",
+    "description": "API types for PrivMX PKI Server",
     "license": "PrivMX",
     "typings": "./typings.d.ts"
 }

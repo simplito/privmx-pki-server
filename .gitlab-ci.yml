@@ -82,7 +82,7 @@ deploy_to_dev:
     - tags
   environment:
     name: dev
-    url: https://webapp-template.pmxbox.com
+    url: https://privmx-pki-server.pmxbox.com
 
 deploy_to_prod:
   stage: deploy
@@ -93,7 +93,7 @@ deploy_to_prod:
     - export IMAGE_ID=$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
     - echo $KUBE_PROD_CONFIG_FILE_CONTENT > kube-config.json
     - export KUBECONFIG=$PWD/kube-config.json
-    - kubectl set image deployment/server-webapp-template-backend-deployment server-webapp-template-backend=$IMAGE_ID
+    - kubectl set image deployment/privmx-pki-server-backend-deployment privmx-pki-server-backend=$IMAGE_ID
   except:
     - branches
   only:
@@ -101,4 +101,4 @@ deploy_to_prod:
   when: manual
   environment:
     name: prod
-    url: https://api.webapp-template
+    url: https://api.privmx-pki-server

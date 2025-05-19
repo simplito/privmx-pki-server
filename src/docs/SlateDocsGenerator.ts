@@ -120,7 +120,7 @@ ${method.errors.map(x => (this.jsonRpcErrorCodes) ? `${this.jsonRpcErrorCodes[x]
         const payload = JSON.stringify({jsonrpc: "2.0", id: 128, method: method.fullName, params: method.exampleParameters}, null, 4).split("\n").map(e => "    " + e).join("\n").trimStart();
         const codeExample =
 "```javascript\n" +
-`const response = await fetch("https://api.webapp-template/main", {
+`const response = await fetch("https://api.privmx-pki-server/main", {
     method: "POST",
     body: JSON.stringify(${payload}),
     headers: {
@@ -254,7 +254,7 @@ Parameter | Type | Enum | Description
     getCurlCommand(method: types.ApiMethod) {
         const callInfo = this.getMethodInfoForCurl(method);
         const jsonRpcRequest = callInfo.payload.split("\n").map(e => "    " + e).join("\n").trimStart();
-        const command = `curl -X POST \\\n    -H "Content-Type: application/json"${callInfo.tokenHeader ? ` -H "${callInfo.tokenHeader}: ${callInfo.tokenValue}"` : ""} \\\n    --data-binary '${jsonRpcRequest}' \\\n    https://api.webapp-template${callInfo.endpoint}`;
+        const command = `curl -X POST \\\n    -H "Content-Type: application/json"${callInfo.tokenHeader ? ` -H "${callInfo.tokenHeader}: ${callInfo.tokenValue}"` : ""} \\\n    --data-binary '${jsonRpcRequest}' \\\n    https://api.privmx-pki-server${callInfo.endpoint}`;
         return command;
     }
     

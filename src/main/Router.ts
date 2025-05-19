@@ -30,6 +30,9 @@ export class Router {
         if (req.method === "GET" && req.url === "/" && this.configService.values.redirectToDocs) {
             return {status: 302, body: "", headers: {"Location": "/docs/"}};
         }
+        if (req.method === "GET" && req.url === "/docs") {
+            return {status: 302, body: "", headers: {"Location": "/docs/"}};
+        }
         if (req.method === "GET" && this.isAssetsRequest(req)) {
             return serveAssets(this.configService.values.publicDir, req, requestContainer.getResponse());
         }
