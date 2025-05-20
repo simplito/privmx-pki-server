@@ -10,7 +10,6 @@ printf "\n"
 
 printf "\e[1;36m-----------------\nBooting up\n-----------------\e[0m\n"
 
-docker compose pull simplito/privmx-pki-server
 docker compose up -d --wait
 printf "OK\n"
 printf "\n"

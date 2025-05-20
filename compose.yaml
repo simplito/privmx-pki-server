@@ -11,7 +11,7 @@ services:
       start_interval: 1s
 
   privmx-pki-server:
-    image: 'privmx-pki-server'
+    image: 'simplito/privmx-pki-server'
     environment:
       - PMX_HOST=0.0.0.0
       - PMX_MONGO_URL=mongodb://mongodb/
