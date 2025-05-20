@@ -1,6 +1,6 @@
 # PrivMX PKI Server
 
-This repository provides a sample PKI (Public Key Infrastructure) server for PrivMX. It can be used to manage and verify users in a secure way.
+This repository provides a sample PKI (Public Key Infrastructure) server for PrivMX. It secures and authorizes communication between PrivMX Bridge Servers and their users by verifying their public keys.
 
 # Getting Started
 
