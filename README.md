@@ -1,10 +1,10 @@
 # PrivMX PKI Server
 
-This repository provides a A sample PKI (public key infrastructure) server.
+This repository provides a sample PKI (Public Key Infrastructure) server for PrivMX. It can be used to manage and verify users in a secure way.
 
-# Getting started
+# Getting Started
 
-## Setting up (using docker)
+## Setting Up (Using Docker)
 <div class="center-column"></div>
 
 From the bash-like terminal, run:
@@ -23,7 +23,7 @@ API Key ID:  682741b5d999a98408236a64
 API Key Secret:  914cdf259a818c5b716bc09af3295da1
 ```
 
-## Setting up (from sources)
+## Setting Up (From Sources)
 ### Prerequisites
 
 #### Mongo
@@ -34,7 +34,7 @@ PrivMX PKI Server requires a connection to MongoDB with a replica set enabled. I
 ./scripts/mongo.sh
 ```
 
-#### Nodejs
+#### Node.js
 
 The project is written in TypeScript, so it requires a Node.js environment to run (version 22).
 
@@ -48,7 +48,7 @@ npm run compile
 npm start
 ```
 
-### Create an API key
+### Create an API Key
 
 To use the administrative API, you need an API key. You can create one by running (in a bash-like terminal):
 
@@ -56,7 +56,7 @@ To use the administrative API, you need an API key. You can create one by runnin
 ./create_api_key
 ```
 
-# Basic usage
+# Basic Usage
 
 ## Admin PKI API
 
@@ -81,9 +81,9 @@ As a result, one of the fields you will receive will be the `access_token` field
 
 You can now use it for methods requiring authentication by providing it in the header as follows: `"Authorization: Bearer <access_token>"`.
 
-### Registering the Bridge Server 
+### Registering PrivMX Bridge Server 
 
-To register a Bridge Server you will use the `pkiadmin/setHost` method of the Admin PKI API and the generated access token:
+To register a PrivMX Bridge server you will use the `pkiadmin/setHost` method of the Admin PKI API and the generated access token:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <access-token>" --data-binary '{
@@ -96,9 +96,9 @@ curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <acce
     }
 }' http://localhost:8101/main
 ```
-As a result, you will receive a JSON object with an `instanceId` identifying the added Bridge server.
+As a result, you will receive a JSON object with an `instanceId` identifying the added PrivMX Bridge server.
 
-### Verification of registration
+### Verification of Registration
 In order to verify the correctness of the previous step, you can use `pkiadmin/listHosts` API method get the list of registered Bridge servers:
 
 ```bash
@@ -108,9 +108,9 @@ curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <acce
     "params":{}
 }' http://localhost:8101/main
 ```
-The PKI server should return a list of registered Bridge Servers records in the form of a `JSON` object as a result.
+The PKI server should return a list of registered PrivMX Bridge records in the form of a `JSON` object as a result.
 
-### Adding user identification information
+### Adding User Identification Information
 
 To enable verification of users' public keys, their records (UserIdentity) must be added to the PKI server using `pkiadmin/setKey` API method:
 
@@ -127,7 +127,7 @@ url -X POST -H "Content-Type: application/json" -H "Authorization: Bearer <acces
     }
 }' http://localhost:8101/main
 ```
-From now on, the UserIdentity of a user presenting a given public key will be associated with a specific instance of the Bridge server (and with a context within that server).
+From now on, the `UserIdentity` of a user presenting a given public key will be associated with a specific instance of PrivMX Bridge (and with a context within that server).
 
 Further steps on how to verify the data at the client application level using the PrivMX Endpoint library are described in the [PrivMX Docs](https://docs.privmx.dev).
 
