@@ -338,6 +338,7 @@ a {
   }
 
   .lang-selector {
+    display:none;
     position: fixed;
     z-index: 50;
     top: 15px;
@@ -346,6 +347,7 @@ a {
 }
 
 .lang-selector {
+  display: none;
   font-weight: bold;
   a {
     display: block;
@@ -697,7 +699,7 @@ a {
   }
 
   .toc-wrapper .lang-selector {
-    display: block;
+    display: none;
     padding: 0 10px;
   }
 
