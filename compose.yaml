@@ -16,6 +16,7 @@ services:
       - PMX_HOST=0.0.0.0
       - PMX_MONGO_URL=mongodb://mongodb/
       - PMX_CORS_ENABLED=true
+      - PMX_CORS_ORIGINS=*
 
     volumes:
       - './:/app'
