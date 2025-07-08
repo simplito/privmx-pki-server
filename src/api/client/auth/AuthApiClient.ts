@@ -10,7 +10,10 @@ export class AuthApiClient implements authApi.IAuthApi {
     private request<T>(method: string, params: unknown): Promise<T> {
         return this.requester.request("auth/" + method, params);
     }
-    
+    createFirstApiKey(model: authApi.CreateFirstApiKeyModel): Promise<authApi.CreateFirstApiKeyResult> {
+        return this.request("createFirstApiKey", model);
+    }
+
     token(model: authApi.TokenModel, challenge: types.auth.ChallengeModel|undefined): Promise<authApi.AccessTokenResult> {
         return this.request("token", {...model, ...(challenge || {})});
     }

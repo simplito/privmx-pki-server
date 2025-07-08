@@ -23,6 +23,7 @@ export interface ConfigValues {
         enabled: boolean;
         origins: string[];
     };
+    initializationToken: string|null;
     defaultMailLanguage: types.core.Language;
     mail: {
         from: string;
@@ -101,6 +102,7 @@ export class ConfigService {
                 enabled: process.env.PMX_CORS_ENABLED === "true",
                 origins: process.env.PMX_CORS_ORIGINS ? process.env.PMX_CORS_ORIGINS.split(",") : [],
             },
+            initializationToken: process.env.PMX_INITIALIZATION_TOKEN || null,
             defaultMailLanguage: (process.env.DEFAULT_MAIL_LANGUAGE || "en") as types.core.Language,
             mail: {
                 from: process.env.PMX_MAIL_FROM || "WebApp Team <contact@domain.com>",
