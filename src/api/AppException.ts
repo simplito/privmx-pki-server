@@ -88,6 +88,8 @@ export const API_ERROR_CODES = {
     "URL_ALREADY_RESERVED"                   : {code: 0x0058, message: "Given URL already reserved.", description: "There is already a HostIdentity with the given URL associated to it."},
     "HOST_IDENTITY_WITH_GIVEN_PUB_KEY_ALREADY_EXISTS" : {code: 0x0059, message: "Host Identity with the given public key already exists.", description: "There is already a Host Identity with the given public key."},
     "CANNOT_REMOVE_URL_FROM_THE_HOST"        : {code: 0x0059, message: "Cannot remove url from the given host.", description: "Cannot remove the URL from the host identity identified by the given instanceId."},
+    "FIRST_API_KEY_ALREADY_EXISTS"           : {code: 0x0060, message: "First api key was already created"},
+    "INITIALIZATION_TOKEN_MISSMATCH"         : {code: 0x0061, message: "Initialization token is invalid or not set"},
     
 };
 

@@ -7,6 +7,8 @@ import { ApiKeyRepository } from "./ApiKeyRepository";
 import { Crypto } from "../utils/Crypto";
 import { SessionRepository } from "./SessionRepository";
 import { WebSocketService } from "./WebSocketService";
+import { ConfigService } from "./ConfigService";
+import { Scope } from "../types/core";
 
 export class UserService {
     
@@ -15,6 +17,7 @@ export class UserService {
         private apiKeyRepository: ApiKeyRepository,
         private sessionRepository: SessionRepository,
         private webSocketService: WebSocketService,
+        private configService: ConfigService,
     ) {
     }
     
@@ -29,6 +32,29 @@ export class UserService {
     validateUserStatus(user: db.User) {
         if (!user.enabled) {
             throw new AppException("ACCOUNT_DISABLED");
+        }
+    }
+    
+    async createFirstApiKey(initializationToken: types.auth.InitializationToken, name: types.auth.ApiKeyName) {
+        const apiKeyCount = await this.apiKeyRepository.getApiKeyCount();
+        const configInitializationToken = this.configService.values.initializationToken;
+        if (apiKeyCount !== 0) {
+            throw new AppException("FIRST_API_KEY_ALREADY_EXISTS");
+        }
+        if (!configInitializationToken || initializationToken !== configInitializationToken) {
+            throw new AppException("INITIALIZATION_TOKEN_MISSMATCH");
+        }
+        const availUsers = await this.userRepository.getAll();
+        if (availUsers.length > 0) {
+            const user = (await this.userRepository.getAll())[0];
+            const apiKey = (await this.apiKeyRepository.getAllUserApiKeys(user._id))[0];
+            return {apiKeyId: apiKey._id, apiKeySecret: apiKey.clientSecret};
+        }
+        else {
+            const user = await this.userRepository.create(true);
+            const convertedScope = this.convertScope(["read" as Scope], "disabled");
+            const apiKey = await this.apiKeyRepository.create(user._id as types.user.UserId, name as types.auth.ApiKeyName, convertedScope.scope, undefined);
+            return {apiKeyId: apiKey._id, apiKeySecret: apiKey.clientSecret};
         }
     }
     

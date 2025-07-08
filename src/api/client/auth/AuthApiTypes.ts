@@ -64,6 +64,17 @@ export interface ForkTokenModel {
     sessionName: types.auth.SessionName;
 }
 
+export interface CreateFirstApiKeyModel {
+    /** Initialization token */
+    initializationToken: types.auth.InitializationToken;
+    /** New api key name */
+    name: types.auth.ApiKeyName;
+}
+export interface CreateFirstApiKeyResult {
+    apiKeyId: types.auth.ClientId;
+    apiKeySecret: types.auth.ClientSecret;
+}
+
 export type TokenResult = AccessTokenResult;
 
 export type ForkTokenResult = AccessTokenResult;
@@ -71,6 +82,12 @@ export type ForkTokenResult = AccessTokenResult;
 export type LoginForTokenResult = AccessTokenResult;
 
 export interface IAuthApi {
+    /**
+     * Creates and returns a pair of API_KEY_ID and API_KEY_SECRET as long as initializationToken passed in the model equals the token passed through the PMX_INITIALIZATION_TOKEN env variable.
+    * @param model Initialization token and the name for it
+    * @returns API_KEY_ID and API_KEY_SECRET pair
+    */
+    createFirstApiKey(model: CreateFirstApiKeyModel): Promise<CreateFirstApiKeyResult>;
     
     /**
     *<p>Retrieve an Oauth Access Token, to be used for authentication of requests.</p>
