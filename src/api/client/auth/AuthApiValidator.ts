@@ -6,7 +6,7 @@ export class AuthApiValidator extends ApiValidator {
         
         this.registerMethod("createFirstApiKey", this.builder.createObject({
             initializationToken: this.builder.rangeLength(this.builder.string, 1, 1024),
-            name: this.apiKeyName
+            name: this.apiKeyName,
         }));
         this.registerMethod("token", this.builder.createOneOf([
             this.builder.createObject({

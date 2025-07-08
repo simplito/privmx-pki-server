@@ -90,7 +90,7 @@ export const API_ERROR_CODES = {
     "CANNOT_REMOVE_URL_FROM_THE_HOST"        : {code: 0x0059, message: "Cannot remove url from the given host.", description: "Cannot remove the URL from the host identity identified by the given instanceId."},
     "FIRST_API_KEY_ALREADY_EXISTS"           : {code: 0x0060, message: "First api key was already created"},
     "INITIALIZATION_TOKEN_MISSMATCH"         : {code: 0x0061, message: "Initialization token is invalid or not set"},
-
+    
 };
 
 export const ERROR_CODES: {[name: string]: {code: number, message: string, description: string}} = <any>API_ERROR_CODES;

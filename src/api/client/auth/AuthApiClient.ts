@@ -13,7 +13,7 @@ export class AuthApiClient implements authApi.IAuthApi {
     createFirstApiKey(model: authApi.CreateFirstApiKeyModel): Promise<authApi.CreateFirstApiKeyResult> {
         return this.request("createFirstApiKey", model);
     }
-
+    
     token(model: authApi.TokenModel, challenge: types.auth.ChallengeModel|undefined): Promise<authApi.AccessTokenResult> {
         return this.request("token", {...model, ...(challenge || {})});
     }

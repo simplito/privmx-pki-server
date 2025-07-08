@@ -33,10 +33,10 @@ export const test = testApi("client", "auth/", AuthApi, new AuthApiValidator(), 
     });
     call("createFirstApiKey", api => api.createFirstApiKey({
         initializationToken: "some_secret_token"  as types.auth.InitializationToken,
-        name: "name_for_api_key" as types.auth.ApiKeyName
+        name: "name_for_api_key" as types.auth.ApiKeyName,
     })).setResult({
         apiKeyId: "API_KEY_ID" as types.auth.ClientId,
-        apiKeySecret: "API_KEY_SECRET" as types.auth.ClientSecret
+        apiKeySecret: "API_KEY_SECRET" as types.auth.ClientSecret,
     });
-
+    
 });

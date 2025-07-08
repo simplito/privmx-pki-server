@@ -14,7 +14,7 @@ export class AuthApi extends BaseApi implements authApi.IAuthApi {
     constructor(
         private authorizationService: AuthorizationService,
         private authorizationHolder: AuthorizationHolder,
-        private userService: UserService
+        private userService: UserService,
         
     ) {
         super(new AuthApiValidator());
@@ -27,7 +27,7 @@ export class AuthApi extends BaseApi implements authApi.IAuthApi {
     async createFirstApiKey(model: authApi.CreateFirstApiKeyModel): Promise<authApi.CreateFirstApiKeyResult> {
         return this.userService.createFirstApiKey(model.initializationToken, model.name);
     }
-
+    
     @ApiMethod({})
     async bindAccessToken(model: authApi.BindAccessTokenModel): Promise<types.core.OK> {
         await this.authorizationService.bindAccessToken(model.accessToken);
