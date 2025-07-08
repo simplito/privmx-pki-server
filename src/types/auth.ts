@@ -5,6 +5,7 @@ export type ClientId = string&{__clientId: never};
 export type ClientSecret = string&{__clientSecret: never};
 export type ApiKeyName = string&{__apiKeyName: never};
 export type SessionName = string&{__sessionName: never};
+export type InitializationToken = string&{__token: never};
 
 export interface Pbkdf2Params {
     /** Salt used to mix password */
@@ -78,4 +79,3 @@ export interface EmailSecondFactorChallengeData {
     attempts: number;
     requestParamsHash: string;
 }
-

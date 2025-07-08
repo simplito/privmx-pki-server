@@ -7,15 +7,25 @@ import { AppException } from "../../AppException";
 import { Utils } from "../../../utils/Utils";
 import * as authApi from "./AuthApiTypes";
 import { AuthorizationHolder } from "../../../requestScopeService/AuthorizationHolder";
+import { UserService } from "../../../service/UserService";
 
 export class AuthApi extends BaseApi implements authApi.IAuthApi {
     
     constructor(
         private authorizationService: AuthorizationService,
         private authorizationHolder: AuthorizationHolder,
+        private userService: UserService,
         
     ) {
         super(new AuthApiValidator());
+    }
+    
+    @ApiMethod({
+        scope: "ignore",
+        errorCodes: ["FIRST_API_KEY_ALREADY_EXISTS",  "INITIALIZATION_TOKEN_MISSMATCH"],
+    })
+    async createFirstApiKey(model: authApi.CreateFirstApiKeyModel): Promise<authApi.CreateFirstApiKeyResult> {
+        return this.userService.createFirstApiKey(model.initializationToken, model.name);
     }
     
     @ApiMethod({})

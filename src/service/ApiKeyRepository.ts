@@ -8,6 +8,7 @@ export interface ApiKeyAndUser {
     apikey: db.ApiKey|null;
     user: db.User|null;
 };
+
 export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
     
     static readonly COLLECTION_NAME = "api_key";
@@ -35,6 +36,10 @@ export class ApiKeyRepository extends BaseRepository<db.ApiKey> {
         };
         await this.insert(apiKey);
         return apiKey;
+    }
+    
+    async getApiKeyCount() {
+        return this.getCollection().countDocuments();
     }
     
     async updateApikey(model: {apiKeyId: types.auth.ClientId, name?: types.auth.ApiKeyName, enabled?: boolean, maxScope?: types.core.Scope[]}) {
