@@ -77,7 +77,7 @@ export class ConfigService {
     
     constructor() {
         this.basePath = path.join(__dirname, "../../");
-        const host = process.env.PMX_HOST || "localhost";
+        const host = process.env.PMX_HOST || "0.0.0.0";
         const port = parseInt(process.env.PMX_PORT || "0", 10) || 8101;
         const storageDir = path.resolve(process.env.PMX_STORAGE_DIR || path.resolve(this.basePath, "storage"));
         const publicDir = path.resolve(process.env.PMX_PUBLIC_DIR || path.resolve(this.basePath, "public"));
